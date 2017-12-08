@@ -3,8 +3,10 @@
 
 
 import numpy as np
+import random
 import load_data
 from scipy.stats import logistic
+import evolution
 
 
 class BPR():
@@ -49,15 +51,17 @@ class BPR():
         itemMat = self.itemMat
         alpha = self.alpha
         gama = self.gama
+        N = self.N
         for step in range(self.step):
             for user_id in range(len(ratingMat)):
                 # user don't rate
-                # nagetiveList = np.where(ratingMat[user_id] == 0)[0]
+                nagetiveList = list(np.where(ratingMat[user_id] == 0)[0])
                 for item_id in np.where(ratingMat[user_id] == 1)[0]:
                     Pu = userMat[user_id]
                     Qi = itemMat[item_id]
                     # nag_item_id = np.random.choice(nagetiveList)
-                    for nag_item_id in np.where(ratingMat[user_id] == 0)[0]:
+                    nage_Sampling = random.sample(nagetiveList, N)
+                    for nag_item_id in nage_Sampling:
                         Qj = itemMat[nag_item_id]
                         eij = np.dot(Pu, Qi) - np.dot(Pu, Qj)
                         logisticResult = logistic.cdf(-eij)
@@ -76,10 +80,4 @@ class BPR():
         return userMat, itemMat
 
 
-if __name__ == '__main__':
-    R, T, userNum, itemNum = load_data.trainingData()
-    d = 10
-    N = 5
-    bpr = BPR(R, T, userNum, itemNum, d, N)
-    bpr.standard_BPR()
-    userMat, itemMat = bpr.standard_BPR()
+
