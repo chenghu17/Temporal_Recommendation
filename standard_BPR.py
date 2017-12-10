@@ -4,7 +4,6 @@
 
 import numpy as np
 import random
-import load_data
 from scipy.stats import logistic
 import evolution
 
