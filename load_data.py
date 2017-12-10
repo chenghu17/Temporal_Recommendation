@@ -45,7 +45,7 @@ def splitData(datapath, trianpath, testpath):
 
 
 def trainingData(trainpath, item_dict,user_dict, userNum, itemNum):
-    trainMat = np.zeros((userNum, itemNum))
+    ratingMat = np.zeros((userNum, itemNum))
     train_df = pd.read_csv(trainpath, header=None)
     train_df = train_df[[0, 1]]
     length = len(train_df)
@@ -54,19 +54,26 @@ def trainingData(trainpath, item_dict,user_dict, userNum, itemNum):
         user_id = user_dict[user_index]
         item_index = train_df.iat[i, 1]
         item_id = item_dict[item_index]
-        trainMat[user_id][item_id] = 1
+        ratingMat[user_id][item_id] = 1
     timeMat = []
 
-    return trainMat, timeMat
+    return ratingMat, timeMat
 
 
-def test_Data(testpath, item_dict):
-    test_df = pd.read_csv(testpath)
-
-    test_data = []
-
-    return test_data
-
+def testingData(testpath, item_dict,user_dict, userNum, itemNum):
+    testMat = np.zeros((userNum, itemNum))
+    train_df = pd.read_csv(testpath, header=None)
+    train_df = train_df[[0, 1]]
+    length = len(train_df)
+    # Y_True = np.ones(length)
+    for i in range(length):
+        user_index = train_df.iat[i, 0]
+        user_id = user_dict[user_index]
+        item_index = train_df.iat[i, 1]
+        item_id = item_dict[item_index]
+        testMat[user_id][item_id] = 1
+    # return testMat,Y_True
+    return testMat
 
 if __name__ == '__main__':
     # a = 3

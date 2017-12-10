@@ -1,3 +1,6 @@
+# author : hucheng
+# This part is for question & answer
+
 import pandas as pd
 import numpy as np
 
@@ -38,15 +41,39 @@ def splitData(datapath, trianpath, testpath):
 
     return userNum
 
+def prediction(self, userMat, itemMat):
+    pred = list()
+    true = list()
+    testMat = self.testMat
+    for user_id in range(len(testMat)):
+        negativeList = list(np.where(testMat[user_id] == 0)[0])
+        # positive
+        for item_id in np.where(testMat[user_id] == 1)[0]:
+            true.append(1)
+            Pu = userMat[user_id]
+            Qi = itemMat[item_id]
+            Y = np.dot(Pu, Qi)
+            pred.append(Y)
+            # negative
+            nega_Sampling = random.sample(negativeList, 1)
+            for nega_item_id in nega_Sampling:
+                true.append(0)
+                Qj = itemMat[nega_item_id]
+                Y = np.dot(Pu, Qj)
+                pred.append(Y)
+    Y_True = np.array(true)
+    Y_Pred = np.array(pred)
+    return Y_True, Y_Pred
+
 
 def trainingData(trainpath, item_dict, userNum, itemNum):
     trainMat = np.zeros((userNum, itemNum))
-    train_df = pd.read_csv(trainpath,header=None)
-    train_df = train_df[[0,1]]
+    train_df = pd.read_csv(trainpath, header=None)
+    train_df = train_df[[0, 1]]
     length = len(train_df)
     for i in range(length):
-        user_id = train_df.iat[i,0]
-        item_index = train_df.iat[i,1]
+        user_id = train_df.iat[i, 0]
+        item_index = train_df.iat[i, 1]
         item_id = item_dict[item_index]
         trainMat[user_id][item_id] = 1
 
@@ -54,16 +81,19 @@ def trainingData(trainpath, item_dict, userNum, itemNum):
 
 
 if __name__ == '__main__':
-    path = 'dataset/movies.csv'
-    item_dict, itemNum = itemDict(path)
+    title = 'Talk is cheap, Show me the code'
 
-    datapath = 'dataset/ratings.csv'
-    trainpath = 'dataset/train.csv'
-    testpath = 'dataset/test.csv'
-    userNum = splitData(datapath, trainpath, testpath)
+    # path = 'dataset/movies.csv'
+    # item_dict, itemNum = itemDict(path)
+    #
+    # datapath = 'dataset/ratings.csv'
+    # trainpath = 'dataset/train.csv'
+    # testpath = 'dataset/test.csv'
+    # userNum = splitData(datapath, trainpath, testpath)
+    #
+    # trainingData('dataset/train.csv', item_dict, userNum,itemNum)
 
-    trainingData('dataset/train.csv', item_dict, userNum,itemNum)
-
+    # --------------------------------
 
     # traindata = [
     #     [0, 1, 0, 0, 1, 0, 1, 0, 0, 0],
