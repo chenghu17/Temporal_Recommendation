@@ -14,8 +14,7 @@ if __name__ == '__main__':
 
     d = 5
     N = 1
+    t = 1
     # bpr = standard_BPR.BPR(ratingMat, timeMat, userNum, itemNum, testMat, Y_True, d, N)
-    bpr = standard_BPR.BPR(ratingMat, timeMat, userNum, itemNum, testMat, d, N)
+    bpr = standard_BPR.BPR(ratingMat, timeMat, userNum, itemNum, testMat, d, N, t)
     userMat, itemMat = bpr.standard_BPR()
-
-    # evolution.AUC(y_true, )

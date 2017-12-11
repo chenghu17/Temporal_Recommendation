@@ -41,6 +41,8 @@ def splitData(datapath, trianpath, testpath):
         test_data.to_csv(test, header=False, index=False)
     for index in range(1,userNum+1):
         user_dict[index] = index-1
+    train.close()
+    test.close()
     return userNum,user_dict
 
 

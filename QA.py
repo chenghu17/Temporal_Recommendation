@@ -3,6 +3,7 @@
 
 import pandas as pd
 import numpy as np
+import time
 
 
 def itemDict(path):
@@ -79,9 +80,24 @@ def trainingData(trainpath, item_dict, userNum, itemNum):
 
     return trainMat
 
+def timestampTOtime(datapath):
+    f = open('dataset/time.txt','a')
+    train_df = pd.read_csv(datapath)
+    length = len(train_df)
+    for i in range(length):
+
+        timestamp = train_df.iat[i,3]
+        st = time.localtime(timestamp)
+        datatime = time.strftime('%Y-%m-%d %H:%M:%S', st)
+        f.write(datatime+'\n')
+    f.close()
 
 if __name__ == '__main__':
     title = 'Talk is cheap, Show me the code'
+
+    #--------------------------------
+    # datapath = 'dataset/ratings.csv'
+    # timestampTOtime(datapath)
 
     # path = 'dataset/movies.csv'
     # item_dict, itemNum = itemDict(path)
