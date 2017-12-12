@@ -85,16 +85,17 @@ def timestampTOtime(datapath):
     train_df = pd.read_csv(datapath)
     length = len(train_df)
     for i in range(length):
-
+        userId = train_df.iat[i,0]
+        itemId = train_df.iat[i,1]
         timestamp = train_df.iat[i,3]
         st = time.localtime(timestamp)
         datatime = time.strftime('%Y-%m-%d %H:%M:%S', st)
+        datatime = str(userId) + ' ' + str(itemId) + ' ' + datatime
         f.write(datatime+'\n')
     f.close()
 
 if __name__ == '__main__':
     title = 'Talk is cheap, Show me the code'
-
     #--------------------------------
     # datapath = 'dataset/ratings.csv'
     # timestampTOtime(datapath)
