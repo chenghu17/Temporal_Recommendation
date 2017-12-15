@@ -28,6 +28,7 @@ class BPR():
         self.itemMat = np.random.random((itemNum, d))
         self.testMat = testMat
         self.N = N
+        # t可以是时间间隔的timestamp表示
         self.t = t
         self.step = step
         self.alpha = alpha
@@ -43,11 +44,11 @@ class BPR():
                 Qi = itemMat[item_id]
                 nega_Sampling = random.sample(negativeList, N)
                 for nega_item_id in nega_Sampling:
-                    Qj = itemMat[nega_item_id]
-                    regResult = np.dot(Pu, Pu) + np.dot(Qi, Qi) + np.dot(Qj, Qj)
+                    Qk = itemMat[nega_item_id]
+                    regResult = np.dot(Pu, Pu) + np.dot(Qi, Qi) + np.dot(Qk, Qk)
                     e += gama * regResult
-                    eij = np.dot(Pu, Qi) - np.dot(Pu, Qj)
-                    logisticResult = logistic.cdf(eij)
+                    eik = np.dot(Pu, Qi) - np.dot(Pu, Qk)
+                    logisticResult = logistic.cdf(eik)
                     e -= np.log(logisticResult)
         print(e)
         return e
@@ -67,8 +68,8 @@ class BPR():
             # negative
             for nega_item_id in np.where(testMat[user_id] == 0)[0]:
                 true.append(0)
-                Qj = itemMat[nega_item_id]
-                Y = np.dot(Pu, Qj)
+                Qk = itemMat[nega_item_id]
+                Y = np.dot(Pu, Qk)
                 pred.append(Y)
         Y_True = np.array(true)
         Y_Pred = np.array(pred)
@@ -92,17 +93,17 @@ class BPR():
                     # nag_item_id = np.random.choice(nagetiveList)
                     nega_Sampling = random.sample(negativeList, N)
                     for nega_item_id in nega_Sampling:
-                        Qj = itemMat[nega_item_id]
-                        eij = np.dot(Pu, Qi) - np.dot(Pu, Qj)
-                        logisticResult = logistic.cdf(-eij)
+                        Qk = itemMat[nega_item_id]
+                        eik = np.dot(Pu, Qi) - np.dot(Pu, Qk)
+                        logisticResult = logistic.cdf(-eik)
                         # calculate every gradient
-                        gradient_pu = logisticResult * (Qj - Qi) + gama * Pu
+                        gradient_pu = logisticResult * (Qk - Qi) + gama * Pu
                         gradient_qi = logisticResult * (-Pu) + gama * Qi
-                        gradient_qj = logisticResult * (Pu) + gama * Qj
+                        gradient_qk = logisticResult * (Pu) + gama * Qk
                         # update every vector
                         userMat[user_id] = Pu - alpha * gradient_pu
                         itemMat[item_id] = Qi - alpha * gradient_qi
-                        itemMat[nega_item_id] = Qj - alpha * gradient_qj
+                        itemMat[nega_item_id] = Qk - alpha * gradient_qk
 
             Y_True, Y_Pred = self.prediction(userMat, itemMat)
             auc = evolution.AUC(Y_True, Y_Pred)
@@ -132,17 +133,17 @@ class BPR():
                     # nag_item_id = np.random.choice(nagetiveList)
                     nega_Sampling = random.sample(negativeList, N)
                     for nega_item_id in nega_Sampling:
-                        Qj = itemMat[nega_item_id]
-                        eij = np.dot(Pu, Qi) - np.dot(Pu, Qj)
-                        logisticResult = logistic.cdf(-eij)
+                        Qk = itemMat[nega_item_id]
+                        eik = np.dot(Pu, Qi) - np.dot(Pu, Qk)
+                        logisticResult = logistic.cdf(-eik)
                         # calculate every gradient
-                        gradient_pu = logisticResult * (Qj - Qi) + gama * Pu
+                        gradient_pu = logisticResult * (Qk - Qi) + gama * Pu
                         gradient_qi = logisticResult * (-Pu) + gama * Qi
-                        gradient_qj = logisticResult * (Pu) + gama * Qj
+                        gradient_qk = logisticResult * (Pu) + gama * Qk
                         # update every vector
                         userMat[user_id] = Pu - alpha * gradient_pu
                         itemMat[item_id] = Qi - alpha * gradient_qi
-                        itemMat[nega_item_id] = Qj - alpha * gradient_qj
+                        itemMat[nega_item_id] = Qk - alpha * gradient_qk
 
             Y_True, Y_Pred = self.prediction(userMat, itemMat)
             auc = evolution.AUC(Y_True, Y_Pred)

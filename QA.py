@@ -4,6 +4,7 @@
 import pandas as pd
 import numpy as np
 import time
+import random
 
 
 def itemDict(path):
@@ -41,6 +42,7 @@ def splitData(datapath, trianpath, testpath):
         test_data.to_csv(test, header=False, index=False)
 
     return userNum
+
 
 def prediction(self, userMat, itemMat):
     pred = list()
@@ -80,36 +82,81 @@ def trainingData(trainpath, item_dict, userNum, itemNum):
 
     return trainMat
 
+
 def timestampTOtime(datapath):
-    f = open('dataset/time.txt','a')
+    f = open('dataset/time.txt', 'a')
     train_df = pd.read_csv(datapath)
     length = len(train_df)
     for i in range(length):
-        userId = train_df.iat[i,0]
-        itemId = train_df.iat[i,1]
-        timestamp = train_df.iat[i,3]
+        userId = train_df.iat[i, 0]
+        itemId = train_df.iat[i, 1]
+        timestamp = train_df.iat[i, 3]
         st = time.localtime(timestamp)
         datatime = time.strftime('%Y-%m-%d %H:%M:%S', st)
         datatime = str(userId) + ' ' + str(itemId) + ' ' + datatime
-        f.write(datatime+'\n')
+        f.write(datatime + '\n')
     f.close()
+
 
 if __name__ == '__main__':
     title = 'Talk is cheap, Show me the code'
-    #--------------------------------
+
+    # function1：extract column of user、timestamp、item
+    # df = pd.read_csv('dataset/dataset_full.tsv',sep='\t', header=None, error_bad_lines=False)
+    # df = df[[0,1,4]]
+    # df = df.dropna()
+    # df.to_csv('dataset/dataset_tmp.csv', header=False, index=False)
+    # -------------------------------
+
+    # function2：transform user_id to number
+    # df = pd.read_csv('dataset/userid.tsv',sep='\t', header=None)
+    # df = df[[0]]
+    # userid_dict = dict()
+    # for i in range(len(df)):
+    #     userid = df.iat[i,0]
+    #     userid_dict[userid] = i
+    # df_data = pd.read_csv('dataset/dataset_tmp.csv', header=None)
+    # for line in range(len(df_data)):
+    #     userid = df_data.iat[line,0]
+    #     df_data.iat[line, 0] = userid_dict[userid]
+    # df_data.to_csv('dataset/dataset_tmp.csv', header=False, index=False)
+    # --------------------------------
+
+    # function3：transform time to timestamp
+    # df = pd.read_csv('dataset/dataset_tmp.csv',header=None)
+    # for line in range(len(df)):
+    #     timeStr = df.iat[line,1]
+    #     # timeStr= '2008-06-09T21:08:37Z'
+    #     timeStr = timeStr[:10]+' '+timeStr[11:19]
+    #     timeStr = time.strptime(timeStr,'%Y-%m-%d %H:%M:%S')
+    #     timestamp = time.mktime(timeStr)
+    #     df.iat[line, 1] = timestamp
+    # df.to_csv('dataset/dataset_tmp.csv', header=False, index=False)
+    # --------------------------------
+
+    # function：calculate the number of music, and transform itemId to number
+    # df = pd.read_csv('dataset/dataset_tmp.csv',header=None)
+    # item_dict = dict()
+    # index = 0
+    # for line in range(len(df)):
+    #     itemId = df.iat[line,2]
+    #     if itemId not in item_dict.keys():
+    #         item_dict[itemId] = index
+    #         index += 1
+    # print(index)
+    # --------------------------------
+
     # datapath = 'dataset/ratings.csv'
     # timestampTOtime(datapath)
+    # --------------------------------
 
     # path = 'dataset/movies.csv'
     # item_dict, itemNum = itemDict(path)
-    #
     # datapath = 'dataset/ratings.csv'
     # trainpath = 'dataset/train.csv'
     # testpath = 'dataset/test.csv'
     # userNum = splitData(datapath, trainpath, testpath)
-    #
     # trainingData('dataset/train.csv', item_dict, userNum,itemNum)
-
     # --------------------------------
 
     # traindata = [
@@ -121,3 +168,4 @@ if __name__ == '__main__':
     # timeMat = []
     # userNum = traindata.shape[0]
     # itemNum = traindata.shape[1]
+    # --------------------------------

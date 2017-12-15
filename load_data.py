@@ -3,8 +3,7 @@
 # ratingMat : user-item rating or  {0,1}
 # timeMat : user-item timestamp, {1,2,3,4,5...}
 
-import numpy as  np
-import random
+import numpy as np
 import pandas as pd
 
 
@@ -18,7 +17,6 @@ def itemDict(path):
         if key not in item_dict.keys():
             item_dict[key] = index
     return item_dict, itemNum
-
 
 # order by time:
 # 80% for training, 20% for testing
