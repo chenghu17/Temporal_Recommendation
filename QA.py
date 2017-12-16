@@ -169,3 +169,59 @@ if __name__ == '__main__':
     # userNum = traindata.shape[0]
     # itemNum = traindata.shape[1]
     # --------------------------------
+
+    # t = 18
+    # timestamp = t * 30 * 24 * 3600
+    # trainPath = 'data/train.tsv'
+    # df_train = pd.read_csv(trainPath, sep='\t', header=None)
+    # maxnum = pd.Series.max(df_train[3])
+    # minnum = pd.Series.min(df_train[3])
+    # distance = maxnum - minnum
+    # time_Step = int(distance / timestamp + 1)
+    # print(time_Step)
+    # sum = 0
+    # for i in range(1, time_Step+1):
+    #     level_up = int(minnum + i * timestamp)
+    #     level_down = level_up - timestamp
+    #     # print(df_train[3])
+    #     df = df_train[(df_train[3] < level_up) & (df_train[3] >= level_down)]
+    #     userSet = set(df[0])
+    #     for userId in userSet:
+    #         df_tmp = df[df[0]==userId]
+    #     length = len(df)
+    #     sum += length
+    #     print(len(df))
+    # print(sum)
+
+    # function : compute item set everyone has rated in each interval
+    # t = 18
+    # userNum = 1000
+    # timestamp = t * 30 * 24 * 3600
+    # trainPath = 'data/train.tsv'
+    # df_train = pd.read_csv(trainPath, sep='\t', header=None)
+    # max_Timestamp = pd.Series.max(df_train[3])
+    # min_Timestamp = pd.Series.min(df_train[3])
+    # distance = max_Timestamp - min_Timestamp
+    # time_Step = int(distance / timestamp + 1)
+    # user_item_time = [0 for n in range(time_Step + 1)]
+    # for t in range(1, time_Step + 1):
+    #     level_down_current = min_Timestamp + (t - 1) * timestamp
+    #     level_up_current = level_down_current + timestamp
+    #     df_interval_current = df_train[(df_train[3] >= level_down_current) & (df_train[3] < level_up_current)]
+    #     # 单个时间间隔中所包含的user集合
+    #     userSet = set(df_interval_current[0])
+    #     # 初始化包含单个时间间隔中每个用户所打过分的list
+    #     user_item_List = [0 for n in range(userNum)]
+    #     for userId in userSet:
+    #         df_tmp = df_interval_current[df_interval_current[0]==userId]
+    #         item_tmp = set(df_tmp[1])
+    #         user_item_List[userId] = item_tmp
+    #     user_item_time[t] = user_item_List
+
+    a = set([1,2,3,4,5,6,6,6,6,6])
+    b = [1,2,3,4,5,6,6,6]
+    list(a)
+    t = random.choice(list(a))
+    print(list(a))
+    print(t)
+

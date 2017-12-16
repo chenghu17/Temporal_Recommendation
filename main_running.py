@@ -16,7 +16,7 @@ if __name__ == '__main__':
     # userMat, itemMat = bpr.standard_BPR()
 
     trainPath = 'data/train.tsv'
-    itemSet = load_data.itemDict(trainPath)
+    itemSet = load_data.itemSet(trainPath)
     t = 18  # month
     d = 5
     userNum = 1000
@@ -27,3 +27,4 @@ if __name__ == '__main__':
     gama = 0.02
     dBPR = Dynamic_BPR.DBPR(trainPath, d, t, userNum, itemNum, itemSet, step, alpha, alpha_Reg, gama)
     userMat, itemMat = dBPR.Time_BPR()
+
