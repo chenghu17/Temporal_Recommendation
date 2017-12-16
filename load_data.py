@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 
 
+# For dataset of movieLen
 def itemDict(path):
     item_dict = dict()
     item_data = pd.read_csv(path)
@@ -17,6 +18,7 @@ def itemDict(path):
         if key not in item_dict.keys():
             item_dict[key] = index
     return item_dict, itemNum
+
 
 # order by time:
 # 80% for training, 20% for testing
@@ -37,14 +39,14 @@ def splitData(datapath, trianpath, testpath):
         train_data.to_csv(train, header=False, index=False)
         test_data = split_data.iloc[middleNum:, :]
         test_data.to_csv(test, header=False, index=False)
-    for index in range(1,userNum+1):
-        user_dict[index] = index-1
+    for index in range(1, userNum + 1):
+        user_dict[index] = index - 1
     train.close()
     test.close()
-    return userNum,user_dict
+    return userNum, user_dict
 
 
-def trainingData(trainpath, item_dict,user_dict, userNum, itemNum):
+def trainingData(trainpath, item_dict, user_dict, userNum, itemNum):
     ratingMat = np.zeros((userNum, itemNum))
     train_df = pd.read_csv(trainpath, header=None)
     train_df = train_df[[0, 1]]
@@ -60,7 +62,7 @@ def trainingData(trainpath, item_dict,user_dict, userNum, itemNum):
     return ratingMat, timeMat
 
 
-def testingData(testpath, item_dict,user_dict, userNum, itemNum):
+def testingData(testpath, item_dict, user_dict, userNum, itemNum):
     testMat = np.zeros((userNum, itemNum))
     train_df = pd.read_csv(testpath, header=None)
     train_df = train_df[[0, 1]]
@@ -74,6 +76,17 @@ def testingData(testpath, item_dict,user_dict, userNum, itemNum):
         testMat[user_id][item_id] = 1
     # return testMat,Y_True
     return testMat
+
+
+# For dataset of FM-1K
+def itemSet(trainPath):
+    itemset= set()
+    df = pd.read_csv(trainPath, sep='\t', header=None)
+    for i in range(len(df)):
+        itemId = df.iat[i,1]
+        itemset.add(itemId)
+    return itemset
+
 
 if __name__ == '__main__':
     # a = 3
