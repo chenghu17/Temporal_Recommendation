@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import time
 import random
+import evolution
 
 
 def itemDict(path):
@@ -96,6 +97,39 @@ def timestampTOtime(datapath):
         datatime = str(userId) + ' ' + str(itemId) + ' ' + datatime
         f.write(datatime + '\n')
     f.close()
+
+
+def prediction(validationPath, userMat, itemMat, itemSet):
+    pred = list()
+    true = list()
+    df_validation = pd.read_csv(validationPath, sep='\t', header=None)
+    for u in range(len(df_validation[0])):
+        df_tmp = df_validation[df_validation[0] == u]
+        item_tmp = set(df_tmp[1])
+        userId = df_validation.iat[u, 0]
+        itemId = df_validation.iat[u, 1]
+        Pu = userMat[userId]
+        Qi = itemMat[itemId]
+        true.append(1)
+        Y = np.dot(Pu, Qi)
+        pred.append(Y)
+        negative_item_set = itemSet - item_tmp
+        nega_item_id = random.choice(list(negative_item_set))
+        Qk = itemMat[nega_item_id]
+        true.append(0)
+        Y = np.dot(Pu, Qk)
+        pred.append(Y)
+    Y_True = np.array(true)
+    Y_Pred = np.array(pred)
+    return Y_True, Y_Pred
+
+def itemSet(trainPath):
+    itemset= set()
+    df = pd.read_csv(trainPath, sep='\t', header=None)
+    for i in range(len(df)):
+        itemId = df.iat[i,1]
+        itemset.add(itemId)
+    return itemset
 
 
 if __name__ == '__main__':
@@ -218,10 +252,17 @@ if __name__ == '__main__':
     #         user_item_List[userId] = item_tmp
     #     user_item_time[t] = user_item_List
 
-    a = set([1,2,3,4,5,6,6,6,6,6])
-    b = [1,2,3,4,5,6,6,6]
-    list(a)
-    t = random.choice(list(a))
-    print(list(a))
-    print(t)
+    trainPath = 'data/train.tsv'
+    validationPath = 'data/validation.tsv'
+    itemMat = np.loadtxt('evolution/itemMat0.txt')
+    userMat = np.loadtxt('evolution/userMat0.txt')
+    itemset = itemSet(trainPath)
 
+    Y_True, Y_Pred = prediction(validationPath,userMat,itemMat,itemset)
+    auc = evolution.AUC(Y_True, Y_Pred)
+    print('AUC:', auc)
+
+    # print(type(itemMat))
+    # for step in range(10):
+    #     userMat_name = 'userMat' + str(step) + '.txt'
+    #     print(userMat_name)

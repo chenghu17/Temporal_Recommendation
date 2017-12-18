@@ -16,15 +16,17 @@ if __name__ == '__main__':
     # userMat, itemMat = bpr.standard_BPR()
 
     trainPath = 'data/train.tsv'
+    validationPath = 'data/validation.tsv'
     itemSet = load_data.itemSet(trainPath)
     t = 18  # month
     d = 5
     userNum = 1000
     itemNum = 1000
-    step = 10000
+    step = 500
     alpha = 0.02
     alpha_Reg = 0.02
     gama = 0.02
-    dBPR = Dynamic_BPR.DBPR(trainPath, d, t, userNum, itemNum, itemSet, step, alpha, alpha_Reg, gama)
+    K = 50  # recall number
+    dBPR = Dynamic_BPR.DBPR(trainPath, validationPath, d, t, userNum, itemNum, itemSet, step, alpha, alpha_Reg, gama)
     userMat, itemMat = dBPR.Time_BPR()
-
+    # evolution.reCall(validationPath, userMat, itemMat, K)
