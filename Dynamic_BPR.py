@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import random
 import time
+import evolution
 from scipy.stats import logistic
 
 
@@ -16,8 +17,9 @@ class DBPR():
     # alpha_Reg : the regularization parameter for Pu
     # gama : the regularization parameter
 
-    def __init__(self, trainPath, d, t, userNum, itemNum, itemSet, step, alpha, alpha_Reg, gama):
+    def __init__(self, trainPath, validationPath, d, t, userNum, itemNum, itemSet, step, alpha, alpha_Reg, gama):
         self.trainPath = trainPath
+        self.validationPath = validationPath
         self.d = d
         # t可以是时间间隔的timestamp表示
         self.t = t
@@ -29,8 +31,35 @@ class DBPR():
         self.alpha_Reg = alpha_Reg
         self.gama = gama
 
+    def prediction(self, validationPath, userMat, itemMat, itemSet):
+        pred = list()
+        true = list()
+        df_validation = pd.read_csv(validationPath, sep='\t', header=None)
+        for u in range(len(df_validation[0])):
+            df_tmp = df_validation[df_validation[0] == u]
+            item_tmp = set(df_tmp[1])
+            userId = df_validation.iat[u, 0]
+            itemId = df_validation.iat[u, 1]
+            Pu = userMat[userId]
+            Qi = itemMat[itemId]
+            true.append(1)
+            Y = np.dot(Pu, Qi)
+            pred.append(Y)
+            negative_item_set = itemSet - item_tmp
+            nega_item_id = random.choice(list(negative_item_set))
+            Qk = itemMat[nega_item_id]
+            true.append(0)
+            Y = np.dot(Pu, Qk)
+            pred.append(Y)
+            print(u)
+
+        Y_True = np.array(true)
+        Y_Pred = np.array(pred)
+        return Y_True, Y_Pred
+
     def Time_BPR(self):
         trainPath = self.trainPath
+        validationPath = self.validationPath
         userNum = self.userNum
         itemNum = self.itemNum
         itemSet = self.itemSet
@@ -130,7 +159,7 @@ class DBPR():
 
                             # calculate every gradient
                             gradient_pu = eii_logistic * (-Qi) + eik_logistic * (Qk - Qi) + ejk_logistic * (
-                                                            Qk) + alpha_Reg * (Pu - Pu_last) + gama * Pu
+                                Qk) + alpha_Reg * (Pu - Pu_last) + gama * Pu
                             gradient_qi = eii_logistic * (-Pu) + eik_logistic * (-Pu) + gama * Qi
                             gradient_qk = eik_logistic * (Pu) + ejk_logistic * (Pu) + gama * Qk
                         else:
@@ -140,45 +169,23 @@ class DBPR():
                             eik_logistic = logistic.cdf(-eik)
 
                             # calculate every gradient
-                            gradient_pu = eii_logistic * (-Qi) + eik_logistic * (Qk - Qi) + alpha_Reg * (Pu - Pu_last) + gama * Pu
+                            gradient_pu = eii_logistic * (-Qi) + eik_logistic * (Qk - Qi) + alpha_Reg * (
+                                    Pu - Pu_last) + gama * Pu
                             gradient_qi = eii_logistic * (-Pu) + eik_logistic * (-Pu) + gama * Qi
                             gradient_qk = eik_logistic * (Pu) + gama * Qk
                         # update every vector
                         userMat[t][userId] = Pu - alpha * gradient_pu
                         itemMat[t][itemId] = Qi - alpha * gradient_qi
                         itemMat[t][nega_item_id] = Qk - alpha * gradient_qk
-            endtime = time.time()
-            print('%d step :%d' %(step,endtime-starttime))
-        return userMat[time_Step], itemMat[time_Step]
 
-        # for step in range(self.step):
-        #     for user_id in range(len(ratingMat)):
-        #         # print('userId:', user_id)
-        #         # user don't rate
-        #         negativeList = list(np.where(ratingMat[user_id] == 0)[0])
-        #         for item_id in np.where(ratingMat[user_id] == 1)[0]:
-        #             Pu = userMat[user_id]
-        #             Qi = itemMat[item_id]
-        #             # nag_item_id = np.random.choice(nagetiveList)
-        #             nega_Sampling = random.sample(negativeList, N)
-        #             for nega_item_id in nega_Sampling:
-        #                 Qk = itemMat[nega_item_id]
-        #                 eik = np.dot(Pu, Qi) - np.dot(Pu, Qk)
-        #                 logisticResult = logistic.cdf(-eik)
-        #                 # calculate every gradient
-        #                 gradient_pu = logisticResult * (Qk - Qi) + gama * Pu
-        #                 gradient_qi = logisticResult * (-Pu) + gama * Qi
-        #                 gradient_qk = logisticResult * (Pu) + gama * Qk
-        #                 # update every vector
-        #                 userMat[user_id] = Pu - alpha * gradient_pu
-        #                 itemMat[item_id] = Qi - alpha * gradient_qi
-        #                 itemMat[nega_item_id] = Qk - alpha * gradient_qk
-        #
-        #     Y_True, Y_Pred = self.prediction(userMat, itemMat)
-        #     auc = evolution.AUC(Y_True, Y_Pred)
-        #     print('AUC:', auc)
-        #
-        #     # e = self.calc_Loss(ratingMat, userMat, itemMat, gama, N)
-        #     # if e < 0.01:
-        #     #     break
-        # return userMat, itemMat
+            Y_True, Y_Pred = self.prediction(validationPath, userMat[time_Step], itemMat[time_Step], itemSet)
+            auc = evolution.AUC(Y_True, Y_Pred)
+            print('AUC:', auc)
+            endtime = time.time()
+            print('%d step :%d' % (step, endtime - starttime))
+            userMat_name = 'userMat'+str(step)+'.txt'
+            itemMat_name = 'itemMat'+str(step)+'.txt'
+            np.savetxt('evolution/'+userMat_name,userMat[time_Step])
+            np.savetxt('evolution/'+itemMat_name,itemMat[time_Step])
+
+        return userMat[time_Step], itemMat[time_Step]
