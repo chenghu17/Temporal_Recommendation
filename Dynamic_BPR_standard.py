@@ -69,17 +69,31 @@ class DBPR():
         userMat = np.random.random((userNum, self.d))
         itemMat = np.random.random((itemNum, self.d))
 
+        # 单个时间间隔中所包含的user集合
+        userSet = set(df_train[0])
+        # 初始化包含单个时间间隔中每个用户所打过分的set
+        user_item_List = [0 for n in range(userNum)]
+        user_item_nega_List = [0 for n in range(userNum)]
+        for userId in userSet:
+            df_tmp = df_train[df_train[0] == userId]
+            item_tmp = set(df_tmp[1])
+            item_nega = itemSet - item_tmp
+            user_item_List[userId] = item_tmp
+            user_item_nega_List[userId] = item_nega
+
         for step in range(self.step):
+            starttime = time.time()
             for line in range(len(df_train)):
                 userId = df_train.iat[line, 0]
                 itemId = df_train.iat[line, 1]
                 Pu = userMat[userId]
                 Qi = itemMat[itemId]
-                tmp_train = df_train[df_train[0] == userId]
-                item_rating_set = set(tmp_train[1])
-                negative_item_set = itemSet - item_rating_set
+                # tmp_train = df_train[df_train[0] == userId]
+                # item_rating_set = set(tmp_train[1])
+                # negative_item_set = itemSet - user_item_List[userId]
                 # negative sampling, negative number is 1
-                nega_item_id = random.choice(list(negative_item_set))
+                # nega_item_id = random.choice(list(negative_item_set))
+                nega_item_id = random.choice(list(user_item_nega_List[userId]))
                 Qk = itemMat[nega_item_id]
                 eik = np.dot(Pu, Qi) - np.dot(Pu, Qk)
                 logisticResult = logistic.cdf(-eik)
@@ -91,10 +105,13 @@ class DBPR():
                 userMat[userId] = Pu - alpha * gradient_pu
                 itemMat[itemId] = Qi - alpha * gradient_qi
                 itemMat[nega_item_id] = Qk - alpha * gradient_qk
+
+            endtime = time.time()
+            print('%d step :%d' % (step, endtime - starttime))
             if step % 3 == 0:
-                Y_True, Y_Pred = self.prediction(validationPath, userMat, itemMat, itemSet)
-                auc = evolution.AUC(Y_True, Y_Pred)
-                print('AUC:', auc)
+                # Y_True, Y_Pred = self.prediction(validationPath, userMat, itemMat, itemSet)
+                # auc = evolution.AUC(Y_True, Y_Pred)
+                # print('AUC:', auc)
                 userMat_name = 'userMat' + str(step) + '.txt'
                 itemMat_name = 'itemMat' + str(step) + '.txt'
                 np.savetxt('evolution_standard/' + userMat_name, userMat)

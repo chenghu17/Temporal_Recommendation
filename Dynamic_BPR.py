@@ -178,14 +178,15 @@ class DBPR():
                         itemMat[t][itemId] = Qi - alpha * gradient_qi
                         itemMat[t][nega_item_id] = Qk - alpha * gradient_qk
 
-            Y_True, Y_Pred = self.prediction(validationPath, userMat[time_Step], itemMat[time_Step], itemSet)
-            auc = evolution.AUC(Y_True, Y_Pred)
-            print('AUC:', auc)
+            # Y_True, Y_Pred = self.prediction(validationPath, userMat[time_Step], itemMat[time_Step], itemSet)
+            # auc = evolution.AUC(Y_True, Y_Pred)
+            # print('AUC:', auc)
             endtime = time.time()
             print('%d step :%d' % (step, endtime - starttime))
-            userMat_name = 'userMat'+str(step)+'.txt'
-            itemMat_name = 'itemMat'+str(step)+'.txt'
-            np.savetxt('evolution/'+userMat_name,userMat[time_Step])
-            np.savetxt('evolution/'+itemMat_name,itemMat[time_Step])
+            if step % 3 == 0:
+                userMat_name = 'userMat' + str(step) + '.txt'
+                itemMat_name = 'itemMat' + str(step) + '.txt'
+                np.savetxt('evolution/' + userMat_name, userMat[time_Step])
+                np.savetxt('evolution/' + itemMat_name, itemMat[time_Step])
 
         return userMat[time_Step], itemMat[time_Step]
