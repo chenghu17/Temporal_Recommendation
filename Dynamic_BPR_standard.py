@@ -51,7 +51,7 @@ class DBPR():
             true.append(0)
             Y = np.dot(Pu, Qk)
             pred.append(Y)
-            print(u)
+            # print(u)
 
         Y_True = np.array(true)
         Y_Pred = np.array(pred)
@@ -66,8 +66,10 @@ class DBPR():
         alpha = self.alpha
         gama = self.gama
         df_train = pd.read_csv(trainPath, sep='\t', header=None)
-        userMat = np.random.random((userNum, self.d))
-        itemMat = np.random.random((itemNum, self.d))
+        # userMat = np.random.random((userNum, self.d))
+        # itemMat = np.random.random((itemNum, self.d))
+        itemMat = np.loadtxt('evolution_standard/itemMat12.txt')
+        userMat = np.loadtxt('evolution_standard/userMat12.txt')
 
         # 单个时间间隔中所包含的user集合
         userSet = set(df_train[0])
@@ -81,7 +83,8 @@ class DBPR():
             user_item_List[userId] = item_tmp
             user_item_nega_List[userId] = item_nega
 
-        for step in range(self.step):
+        # for step in range(self.step):
+        for step in range(13, self.step):
             starttime = time.time()
             for line in range(len(df_train)):
                 userId = df_train.iat[line, 0]
@@ -109,8 +112,12 @@ class DBPR():
             endtime = time.time()
             print('%d step :%d' % (step, endtime - starttime))
             if step % 3 == 0:
-                # Y_True, Y_Pred = self.prediction(validationPath, userMat, itemMat, itemSet)
-                # auc = evolution.AUC(Y_True, Y_Pred)
+                f = open('evolution_standard/auc.txt','a')
+                Y_True, Y_Pred = self.prediction(validationPath, userMat, itemMat, itemSet)
+                auc = evolution.AUC(Y_True, Y_Pred)
+                auc_write = str(step)+' step,auc='+str(auc)
+                f.write(auc_write)
+                f.close()
                 # print('AUC:', auc)
                 userMat_name = 'userMat' + str(step) + '.txt'
                 itemMat_name = 'itemMat' + str(step) + '.txt'

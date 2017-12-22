@@ -30,5 +30,30 @@ t=3 2483596
 t=4 2606951
 t=5 2666297
 sum 11118071
-time interval : 6 month
+time interval : 1.5 years
 validation/test : 1.5 years
+
+Standard-BPR: step time
+0 step :1411
+1 step :1386
+2 step :1496
+3 step :1469
+4 step :2639
+5 step :1682
+6 step :1378
+7 step :1407
+8 step :1413
+9 step :1439
+10 step :1449
+11 step :1451
+12 step :1423
+
+
+DBPR: step time
+0 step :2702
+1 step :2871
+2 step :4032
+3 step :2941
+4 step :2782
+5 step :2855
+6 step :5860

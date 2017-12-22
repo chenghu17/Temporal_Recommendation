@@ -10,7 +10,6 @@ def AUC(y_true, y_pred):
     auc = ras(y_true, y_pred)
     return auc
 
-
 def reCall(validationPath, userMat, itemMat, K):
     df_validation = pd.read_csv(validationPath, sep='\t', header=None)
     for u in range(len(df_validation[0])):
@@ -36,3 +35,12 @@ def reCall(validationPath, userMat, itemMat, K):
         count += 1
     recall = float(right)/float(count)
     return recall
+
+def MRR():
+    return
+
+def MAR():
+    return
+
+def NGCG():
+    return

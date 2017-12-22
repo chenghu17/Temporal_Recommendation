@@ -7,7 +7,6 @@ import time
 import evolution
 from scipy.stats import logistic
 
-
 class DBPR():
 
     # d : dimensions of latent factor
@@ -51,7 +50,7 @@ class DBPR():
             true.append(0)
             Y = np.dot(Pu, Qk)
             pred.append(Y)
-            print(u)
+            # print(u)
 
         Y_True = np.array(true)
         Y_Pred = np.array(pred)
@@ -184,6 +183,12 @@ class DBPR():
             endtime = time.time()
             print('%d step :%d' % (step, endtime - starttime))
             if step % 3 == 0:
+                f = open('evolution/auc.txt', 'a')
+                Y_True, Y_Pred = self.prediction(validationPath, userMat[time_Step], itemMat[time_Step], itemSet)
+                auc = evolution.AUC(Y_True, Y_Pred)
+                auc_write = str(step) + ' step,auc=' + str(auc)
+                f.write(auc_write)
+                f.close()
                 userMat_name = 'userMat' + str(step) + '.txt'
                 itemMat_name = 'itemMat' + str(step) + '.txt'
                 np.savetxt('evolution/' + userMat_name, userMat[time_Step])

@@ -252,15 +252,20 @@ if __name__ == '__main__':
     #         user_item_List[userId] = item_tmp
     #     user_item_time[t] = user_item_List
 
-    trainPath = 'data/train.tsv'
-    validationPath = 'data/validation.tsv'
-    itemMat = np.loadtxt('evolution/itemMat0.txt')
-    userMat = np.loadtxt('evolution/userMat0.txt')
-    itemset = itemSet(trainPath)
+    # trainPath = 'data/train.tsv'
+    # validationPath = 'data/validation.tsv'
+    # itemMat = np.loadtxt('evolution/itemMat0.txt')
+    # userMat = np.loadtxt('evolution/userMat0.txt')
+    # itemset = itemSet(trainPath)
+    #
+    # Y_True, Y_Pred = prediction(validationPath,userMat,itemMat,itemset)
+    # auc = evolution.AUC(Y_True, Y_Pred)
+    # print('AUC:', auc)
 
-    Y_True, Y_Pred = prediction(validationPath,userMat,itemMat,itemset)
-    auc = evolution.AUC(Y_True, Y_Pred)
-    print('AUC:', auc)
+    f = open('evolution_standard/auc.txt','a')
+    for i in range(10):
+        f.write(str(i)+'\n')
+    f.close()
 
     # print(type(itemMat))
     # for step in range(10):

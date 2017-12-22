@@ -1,6 +1,4 @@
 import load_data
-import standard_BPR
-import evolution
 import Dynamic_BPR
 
 if __name__ == '__main__':
