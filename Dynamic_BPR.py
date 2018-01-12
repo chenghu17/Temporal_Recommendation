@@ -7,6 +7,7 @@ import time
 import evolution
 from scipy.stats import logistic
 
+
 class DBPR():
 
     # d : dimensions of latent factor
@@ -16,12 +17,12 @@ class DBPR():
     # alpha_Reg : the regularization parameter for Pu
     # gama : the regularization parameter
 
-    def __init__(self, trainPath, validationPath, d, t, userNum, itemNum, itemSet, step, alpha, alpha_Reg, gama):
+    def __init__(self, trainPath, validationPath, d, interval, userNum, itemNum, itemSet, step, alpha, alpha_Reg, gama):
         self.trainPath = trainPath
         self.validationPath = validationPath
         self.d = d
         # t可以是时间间隔的timestamp表示
-        self.t = t
+        self.interval = interval
         self.userNum = userNum
         self.itemNum = itemNum
         self.itemSet = itemSet
@@ -30,12 +31,22 @@ class DBPR():
         self.alpha_Reg = alpha_Reg
         self.gama = gama
 
-    def prediction(self, validationPath, userMat, itemMat, itemSet):
+    def prediction(self, timestamp, validationPath, userMat, itemMat, itemSet):
         pred = list()
         true = list()
         df_validation = pd.read_csv(validationPath, sep='\t', header=None)
-        for u in range(len(df_validation[0])):
-            df_tmp = df_validation[df_validation[0] == u]
+
+        max_Timestamp = pd.Series.max(df_validation[3])
+        min_Timestamp = pd.Series.min(df_validation[3])
+        current_Timestamp = min_Timestamp + timestamp
+        level_down_current = min_Timestamp
+        level_up_current = current_Timestamp if current_Timestamp < max_Timestamp else max_Timestamp
+
+        df_interval_current = df_validation[
+            (df_validation[3] >= level_down_current) & (df_validation[3] < level_up_current)]
+
+        for u in range(len(df_interval_current[0])):
+            df_tmp = df_interval_current[df_interval_current[0] == u]
             item_tmp = set(df_tmp[1])
             userId = df_validation.iat[u, 0]
             itemId = df_validation.iat[u, 1]
@@ -62,7 +73,7 @@ class DBPR():
         userNum = self.userNum
         itemNum = self.itemNum
         itemSet = self.itemSet
-        timestamp = self.t * 30 * 24 * 3600
+        timestamp = self.interval * 30 * 24 * 3600
         alpha = self.alpha
         alpha_Reg = self.alpha_Reg
         gama = self.gama
@@ -70,6 +81,7 @@ class DBPR():
         max_Timestamp = pd.Series.max(df_train[3])
         min_Timestamp = pd.Series.min(df_train[3])
         time_distance = max_Timestamp - min_Timestamp
+        # 根据需时间间隔t来对时序数据进行划分
         time_Step = int(time_distance / timestamp + 1)
         userMat = [0 for n in range(time_Step + 1)]
         itemMat = [0 for n in range(time_Step + 1)]
@@ -178,20 +190,21 @@ class DBPR():
                         itemMat[t][nega_item_id] = Qk - alpha * gradient_qk
 
             # Y_True, Y_Pred = self.prediction(validationPath, userMat[time_Step], itemMat[time_Step], itemSet)
-            # auc = evolution.AUC(Y_True, Y_Pred)
+            # auc = evolution18.AUC(Y_True, Y_Pred)
             # print('AUC:', auc)
             endtime = time.time()
             print('%d step :%d' % (step, endtime - starttime))
-            if step % 3 == 0:
-                f = open('evolution/auc.txt', 'a')
-                Y_True, Y_Pred = self.prediction(validationPath, userMat[time_Step], itemMat[time_Step], itemSet)
+            if step % 5 == 0:
+                f = open('evolution18/auc.txt', 'a')
+                Y_True, Y_Pred = self.prediction(timestamp, validationPath, userMat[time_Step], itemMat[time_Step],
+                                                 itemSet)
                 auc = evolution.AUC(Y_True, Y_Pred)
                 auc_write = str(step) + ' step,auc=' + str(auc)
                 f.write(auc_write)
                 f.close()
                 userMat_name = 'userMat' + str(step) + '.txt'
                 itemMat_name = 'itemMat' + str(step) + '.txt'
-                np.savetxt('evolution/' + userMat_name, userMat[time_Step])
-                np.savetxt('evolution/' + itemMat_name, itemMat[time_Step])
+                np.savetxt('evolution18/' + userMat_name, userMat[time_Step])
+                np.savetxt('evolution18/' + itemMat_name, itemMat[time_Step])
 
         return userMat[time_Step], itemMat[time_Step]

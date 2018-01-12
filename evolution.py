@@ -36,6 +36,9 @@ def reCall(validationPath, userMat, itemMat, K):
     recall = float(right)/float(count)
     return recall
 
+def RMSE():
+    return
+
 def MRR():
     return
 
