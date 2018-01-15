@@ -2,6 +2,7 @@ from sklearn.metrics import roc_auc_score as ras
 import numpy as np
 import pandas as pd
 import heapq
+import load_data
 
 
 def AUC(y_true, y_pred):
@@ -10,13 +11,20 @@ def AUC(y_true, y_pred):
     auc = ras(y_true, y_pred)
     return auc
 
-def reCall(validationPath, userMat, itemMat, K):
+def Precision(validationPath, userMat, itemMat, K):
     df_validation = pd.read_csv(validationPath, sep='\t', header=None)
-    for u in range(len(df_validation[0])):
-        count = 1
-        right = 0
-        userId = df_validation.iat[u, 0]
-        itemId = df_validation.iat[u, 1]
+    userSet = list(df_validation[0].drop_duplicates())
+    count = 0
+    right = 0
+    precisionRate = 0
+    for userId in userSet:
+
+        # userId = df_validation.iat[u, 0]
+        # itemId = df_validation.iat[u, 1]
+        df_tmp = df_validation[df_validation[0] == userId]
+        df_interval_currentItem = set(df_tmp[1])
+        itemNum = len(df_interval_currentItem)
+
         Pu = userMat[userId]
         result = dict()
         for i in range(len(itemMat)):
@@ -30,11 +38,45 @@ def reCall(validationPath, userMat, itemMat, K):
             for keys in result.keys():
                 if result[keys] == values:
                     top_k_keys.append(keys)
-        if itemId in top_k_keys:
-            right += 1
-        count += 1
-    recall = float(right)/float(count)
-    return recall
+        # 取交集，计算
+        TP = len(df_interval_currentItem & set(top_k_keys))
+        precisionRate += float(TP) / float(K)
+
+    precisionRate = precisionRate/len(userSet)
+    return precisionRate
+
+def reCall(validationPath, userMat, itemMat,K):
+    df_validation = pd.read_csv(validationPath, sep='\t', header=None)
+    userSet = list(df_validation[0].drop_duplicates())
+    count = 0
+    right = 0
+    recallRate = 0
+    for userId in userSet:
+        df_tmp = df_validation[df_validation[0] == userId]
+        df_interval_currentItem = set(df_tmp[1])
+        itemNum = len(df_interval_currentItem)
+
+        Pu = userMat[userId]
+        result = dict()
+        for i in range(len(itemMat)):
+            Qi = itemMat[i]
+            pro = np.dot(Pu, Qi)
+            result[i] = pro
+        # 判断前k个中是否存在itemId
+        # top_k_values = heapq.nlargest(itemNum, result.values())
+        top_k_values = heapq.nlargest(K, result.values())
+        top_k_keys = list()
+        for values in top_k_values:
+            for keys in result.keys():
+                if result[keys] == values:
+                    top_k_keys.append(keys)
+        # 取交集
+        TP = len(df_interval_currentItem & set(top_k_keys))
+        recallRate += float(TP) / float(itemNum)
+
+    recallRate = float(recallRate)/len(userSet)
+    return recallRate
+
 
 def RMSE():
     return
@@ -47,3 +89,51 @@ def MAR():
 
 def NGCG():
     return
+
+if __name__=='__main__':
+
+    trainPath = 'data/train.tsv'
+    validationPath = 'data/validation.tsv'
+
+    itemMat_6 = np.loadtxt('evolution6/itemMat15.txt')
+    userMat_6 = np.loadtxt('evolution6/userMat15.txt')
+
+    itemMat_9 = np.loadtxt('evolution9/itemMat10.txt')
+    userMat_9 = np.loadtxt('evolution9/userMat10.txt')
+
+    itemMat_12 = np.loadtxt('evolution12/itemMat10.txt')
+    userMat_12 = np.loadtxt('evolution12/userMat10.txt')
+
+    Precision_6 = Precision(validationPath, userMat_6, itemMat_6, 10)
+    RECALL_6 = reCall(validationPath, userMat_6, itemMat_6, 10)
+    print('Precision_6:', Precision_6)
+    print('RECALL_6:', RECALL_6)
+
+    Precision_9 = Precision(validationPath, userMat_9, itemMat_9, 10)
+    RECALL_9 = reCall(validationPath, userMat_9, itemMat_9, 10)
+    print('Precision_9:', Precision_9)
+    print('RECALL_9:', RECALL_9)
+
+    Precision_12 = Precision(validationPath, userMat_12, itemMat_12, 10)
+    RECALL_12 = reCall(validationPath, userMat_12, itemMat_12, 10)
+    print('Precision_12:', Precision_12)
+    print('RECALL_12:', RECALL_12)
+
+
+    # itemMat_18 = np.loadtxt('evolution18/itemMat30.txt')
+    # userMat_18 = np.loadtxt('evolution18/userMat30.txt')
+
+    # itemMat_stand = np.loadtxt('evolution_standard/itemMat48.txt')
+    # userMat_stand = np.loadtxt('evolution_standard/userMat48.txt')
+
+    # Precision_18 = Precision(validationPath,userMat_18,itemMat_18,30)
+    # RECALL_18 = reCall(validationPath,userMat_18,itemMat_18,30)
+    # print('Precision_18:',Precision_18)
+    # print('RECALL_18:',RECALL_18)
+
+    # Precision_stand = Precision(validationPath,userMat_stand,itemMat_stand,30)
+    # RECALL_stand = reCall(validationPath,userMat_stand,itemMat_stand,30)
+    # print('Precision_stand:',Precision_stand)
+    # print('RECALL_stand:',RECALL_stand)
+
+    #根据求得的前一个时间间隔itemMat和userMat,对validation数据集计算各种evolution值

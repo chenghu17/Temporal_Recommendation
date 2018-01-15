@@ -27,4 +27,4 @@ if __name__ == '__main__':
     K = 50  # recall number
     dBPR = Dynamic_BPR.DBPR(trainPath, validationPath, d, interval, userNum, itemNum, itemSet, step, alpha, alpha_Reg, gama)
     userMat, itemMat = dBPR.Time_BPR()
-    # evolution18.reCall(validationPath, userMat, itemMat, K)
+    # evolution.reCall(validationPath, userMat, itemMat, K)

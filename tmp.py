@@ -1,7 +1,21 @@
+
+import numpy as np
+import pandas as pd
+
+
 if __name__ == '__main__':
-    # a = set([1,2,3,4,5,6])
-    # b = set([1,7,8])
-    # print(a - b)
-    step = 10
-    if step % 3 == 0:
-        print(step)
+    # trainPath = 'data/train.tsv'
+    # validationPath = 'data/validation.tsv'
+    # df_validation = pd.read_csv(validationPath, sep='\t', header=None)
+    #
+    # userSet = list(df_validation[0].drop_duplicates())
+    # print(userSet)
+    a = set([1,2,2,3,4,5])
+    b = set([1])
+    print(len(a&b))
+
+    # itemMat_18 = np.loadtxt('evolution18/itemMat30.txt')
+    # userMat_18 = np.loadtxt('evolution18/userMat30.txt')
+    # itemMat_stand = np.loadtxt('evolution_standard/itemMat30.txt')
+    # userMat_stand = np.loadtxt('evolution_standard/userMat30.txt')
+
