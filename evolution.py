@@ -11,9 +11,21 @@ def AUC(y_true, y_pred):
     auc = ras(y_true, y_pred)
     return auc
 
-def Precision(validationPath, userMat, itemMat, K):
+def Precision(validationPath, timestamp ,userMat, itemMat, K):
     df_validation = pd.read_csv(validationPath, sep='\t', header=None)
-    userSet = list(df_validation[0].drop_duplicates())
+
+    max_Timestamp = pd.Series.max(df_validation[3])
+    min_Timestamp = pd.Series.min(df_validation[3])
+    current_Timestamp = min_Timestamp + timestamp
+    level_down_current = min_Timestamp
+    level_up_current = current_Timestamp if current_Timestamp < max_Timestamp else max_Timestamp
+
+    df_interval_current = df_validation[
+        (df_validation[3] >= level_down_current) & (df_validation[3] < level_up_current)]
+
+
+
+    userSet = list(df_interval_current[0].drop_duplicates())
     count = 0
     right = 0
     precisionRate = 0
@@ -21,7 +33,7 @@ def Precision(validationPath, userMat, itemMat, K):
 
         # userId = df_validation.iat[u, 0]
         # itemId = df_validation.iat[u, 1]
-        df_tmp = df_validation[df_validation[0] == userId]
+        df_tmp = df_interval_current[df_interval_current[0] == userId]
         df_interval_currentItem = set(df_tmp[1])
         itemNum = len(df_interval_currentItem)
 
@@ -45,14 +57,25 @@ def Precision(validationPath, userMat, itemMat, K):
     precisionRate = precisionRate/len(userSet)
     return precisionRate
 
-def reCall(validationPath, userMat, itemMat,K):
+def reCall(validationPath, timestamp, userMat, itemMat,K):
     df_validation = pd.read_csv(validationPath, sep='\t', header=None)
-    userSet = list(df_validation[0].drop_duplicates())
+
+    max_Timestamp = pd.Series.max(df_validation[3])
+    min_Timestamp = pd.Series.min(df_validation[3])
+    current_Timestamp = min_Timestamp + timestamp
+    level_down_current = min_Timestamp
+    level_up_current = current_Timestamp if current_Timestamp < max_Timestamp else max_Timestamp
+
+    df_interval_current = df_validation[
+        (df_validation[3] >= level_down_current) & (df_validation[3] < level_up_current)]
+
+
+    userSet = list(df_interval_current[0].drop_duplicates())
     count = 0
     right = 0
     recallRate = 0
     for userId in userSet:
-        df_tmp = df_validation[df_validation[0] == userId]
+        df_tmp = df_interval_current[df_interval_current[0] == userId]
         df_interval_currentItem = set(df_tmp[1])
         itemNum = len(df_interval_currentItem)
 
@@ -93,7 +116,11 @@ def NGCG():
 if __name__=='__main__':
 
     trainPath = 'data/train.tsv'
-    validationPath = 'data/validation.tsv'
+    # validationPath = 'data/validation.tsv'
+    validationPath = 'data/test.tsv'
+    timestamp_6 = 6 * 30 * 24 * 3600
+    timestamp_9 = 9 * 30 * 24 * 3600
+    timestamp_12 = 12 * 30 * 24 * 3600
 
     itemMat_6 = np.loadtxt('evolution6/itemMat15.txt')
     userMat_6 = np.loadtxt('evolution6/userMat15.txt')
@@ -104,18 +131,18 @@ if __name__=='__main__':
     itemMat_12 = np.loadtxt('evolution12/itemMat10.txt')
     userMat_12 = np.loadtxt('evolution12/userMat10.txt')
 
-    Precision_6 = Precision(validationPath, userMat_6, itemMat_6, 10)
-    RECALL_6 = reCall(validationPath, userMat_6, itemMat_6, 10)
+    Precision_6 = Precision(validationPath, timestamp_6, userMat_6, itemMat_6, 50)
+    RECALL_6 = reCall(validationPath, timestamp_6, userMat_6, itemMat_6, 50)
     print('Precision_6:', Precision_6)
     print('RECALL_6:', RECALL_6)
 
-    Precision_9 = Precision(validationPath, userMat_9, itemMat_9, 10)
-    RECALL_9 = reCall(validationPath, userMat_9, itemMat_9, 10)
+    Precision_9 = Precision(validationPath, timestamp_9, userMat_9, itemMat_9, 50)
+    RECALL_9 = reCall(validationPath, timestamp_9, userMat_9, itemMat_9, 50)
     print('Precision_9:', Precision_9)
     print('RECALL_9:', RECALL_9)
 
-    Precision_12 = Precision(validationPath, userMat_12, itemMat_12, 10)
-    RECALL_12 = reCall(validationPath, userMat_12, itemMat_12, 10)
+    Precision_12 = Precision(validationPath, timestamp_12, userMat_12, itemMat_12, 50)
+    RECALL_12 = reCall(validationPath, timestamp_12, userMat_12, itemMat_12, 50)
     print('Precision_12:', Precision_12)
     print('RECALL_12:', RECALL_12)
 
