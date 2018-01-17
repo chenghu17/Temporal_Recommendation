@@ -80,15 +80,58 @@ def testingData(testpath, item_dict, user_dict, userNum, itemNum):
 
 # For dataset of FM-1K
 def itemSet(trainPath):
-    itemset= set()
+    itemset = set()
     df = pd.read_csv(trainPath, sep='\t', header=None)
     for i in range(len(df)):
-        itemId = df.iat[i,1]
+        itemId = df.iat[i, 1]
         itemset.add(itemId)
     return itemset
 
 
+# for data_FineFoods
+
+# productId、userId、score、time
+# --> A1D87F6ZCVE5NK B00813GRG4 1.0 1346976000
+def captureData(path, capPath):
+    sourceFile = open(path, 'r', encoding='ISO-8859-1')
+    captureFile = open(capPath, 'w')
+    for line in sourceFile.readlines():
+        # print(line)
+        line = line.strip()
+        if not len(line):
+            continue
+        if 'product/productId:' in line:
+            line = line.lstrip('product/productId:').strip()
+            captureFile.write(line)
+            continue
+        if 'review/userId:' in line:
+            line = line.lstrip('review/userId:').strip()
+            captureFile.write('\t' + line + '\t' + str(1.0))
+            continue
+        if 'review/time' in line:
+            line = line.lstrip('review/time:').strip()
+            captureFile.writelines('\t' + line + '\n')
+
+
+#
+# if __name__ == '__main__':
+#     path = 'data_FineFoods/finefoods.txt'
+#     capPath = 'data_FineFoods/data.csv'
+#     captureData(path,capPath)
+
 if __name__ == '__main__':
-    # a = 3
-    # print(-a)
-    trainingData()
+    df = pd.read_csv('data_FineFoods/data.csv', sep='\t', header=None)
+    userSet = set(df[1])
+    count = 0
+    for user in userSet:
+        df_tmp = df[df[1]==user]
+        # print(user)
+        if len(df_tmp)>20:
+            count += 1
+    print(count)
+    print(len(userSet))
+
+    max_Timestamp = pd.Series.max(df[3])
+    min_Timestamp = pd.Series.min(df[3])
+    print(max_Timestamp)
+    print(min_Timestamp)

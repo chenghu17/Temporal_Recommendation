@@ -206,7 +206,7 @@ if __name__ == '__main__':
 
     # t = 18
     # timestamp = t * 30 * 24 * 3600
-    # trainPath = 'data/train.tsv'
+    # trainPath = 'data_FM/train.tsv'
     # df_train = pd.read_csv(trainPath, sep='\t', header=None)
     # maxnum = pd.Series.max(df_train[3])
     # minnum = pd.Series.min(df_train[3])
@@ -231,7 +231,7 @@ if __name__ == '__main__':
     # t = 18
     # userNum = 1000
     # timestamp = t * 30 * 24 * 3600
-    # trainPath = 'data/train.tsv'
+    # trainPath = 'data_FM/train.tsv'
     # df_train = pd.read_csv(trainPath, sep='\t', header=None)
     # max_Timestamp = pd.Series.max(df_train[3])
     # min_Timestamp = pd.Series.min(df_train[3])
@@ -252,8 +252,8 @@ if __name__ == '__main__':
     #         user_item_List[userId] = item_tmp
     #     user_item_time[t] = user_item_List
 
-    # trainPath = 'data/train.tsv'
-    # validationPath = 'data/validation.tsv'
+    # trainPath = 'data_FM/train.tsv'
+    # validationPath = 'data_FM/validation.tsv'
     # itemMat = np.loadtxt('evolution/itemMat0.txt')
     # userMat = np.loadtxt('evolution/userMat0.txt')
     # itemset = itemSet(trainPath)

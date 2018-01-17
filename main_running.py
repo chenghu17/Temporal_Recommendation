@@ -13,8 +13,8 @@ if __name__ == '__main__':
     # bpr = standard_BPR.BPR(ratingMat, timeMat, userNum, itemNum, testMat, d, N, t)
     # userMat, itemMat = bpr.standard_BPR()
 
-    trainPath = 'data/train.tsv'
-    validationPath = 'data/validation.tsv'
+    trainPath = 'data_FM/train.tsv'
+    validationPath = 'data_FM/validation.tsv'
     itemSet = load_data.itemSet(trainPath)
     interval = 6  # month
     d = 5

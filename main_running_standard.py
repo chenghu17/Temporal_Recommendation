@@ -15,8 +15,8 @@ if __name__ == '__main__':
     # userMat, itemMat = bpr.standard_BPR()
 
 
-    trainPath = 'data/train.tsv'
-    validationPath = 'data/validation.tsv'
+    trainPath = 'data_FM/train.tsv'
+    validationPath = 'data_FM/validation.tsv'
     itemSet = load_data.itemSet(trainPath)
     t = 18  # month
     d = 5

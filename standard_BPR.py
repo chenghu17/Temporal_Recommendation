@@ -12,8 +12,8 @@ class BPR():
     # timeMat : user-item timestamp, {1,2,3,4,5...}
     # ratingMat : user-item rating or  {0,1}
     # userNum、itemNum : user/item number
-    # testMat : testing data, user-item {0,1}
-    # Y_True : label of testing data, {1}
+    # testMat : testing data_FM, user-item {0,1}
+    # Y_True : label of testing data_FM, {1}
     # d : dimensions of latent factor
     # N : negative sampling number
     # t : size of time slices

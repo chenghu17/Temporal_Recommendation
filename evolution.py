@@ -115,9 +115,9 @@ def NGCG():
 
 if __name__=='__main__':
 
-    trainPath = 'data/train.tsv'
-    # validationPath = 'data/validation.tsv'
-    validationPath = 'data/test.tsv'
+    trainPath = 'data_FM/train.tsv'
+    # validationPath = 'data_FM/validation.tsv'
+    validationPath = 'data_FM/test.tsv'
     timestamp_6 = 6 * 30 * 24 * 3600
     timestamp_9 = 9 * 30 * 24 * 3600
     timestamp_12 = 12 * 30 * 24 * 3600

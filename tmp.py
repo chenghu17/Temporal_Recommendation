@@ -4,8 +4,8 @@ import pandas as pd
 
 
 if __name__ == '__main__':
-    # trainPath = 'data/train.tsv'
-    # validationPath = 'data/validation.tsv'
+    # trainPath = 'data_FM/train.tsv'
+    # validationPath = 'data_FM/validation.tsv'
     # df_validation = pd.read_csv(validationPath, sep='\t', header=None)
     #
     # userSet = list(df_validation[0].drop_duplicates())
