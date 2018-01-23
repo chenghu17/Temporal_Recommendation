@@ -17,7 +17,8 @@ class DBPR():
     # alpha_Reg : the regularization parameter for Pu
     # gama : the regularization parameter
 
-    def __init__(self, trainPath, validationPath, d, interval, userNum, itemNum, itemSet, step, alpha, alpha_Reg, gama):
+    def __init__(self, rootPath, trainPath, validationPath, d, interval, userNum, itemNum, itemSet, step, alpha, alpha_Reg, gama):
+        self.rootPath = rootPath
         self.trainPath = trainPath
         self.validationPath = validationPath
         self.d = d
@@ -68,6 +69,7 @@ class DBPR():
         return Y_True, Y_Pred
 
     def Time_BPR(self):
+        rootPath = self.rootPath
         trainPath = self.trainPath
         validationPath = self.validationPath
         userNum = self.userNum
@@ -193,18 +195,19 @@ class DBPR():
             # auc = evolution.AUC(Y_True, Y_Pred)
             # print('AUC:', auc)
             endtime = time.time()
-            print('%d step :%d' % (step, endtime - starttime))
-            if step % 5 == 0:
+            # print('%d step :%d' % (step, endtime - starttime))
+            if step % 3 == 0:
                 userMat_name = 'userMat' + str(step) + '.txt'
                 itemMat_name = 'itemMat' + str(step) + '.txt'
-                np.savetxt('evolution18/' + userMat_name, userMat[time_Step])
-                np.savetxt('evolution18/' + itemMat_name, itemMat[time_Step])
-
-                f = open('evolution18/auc.txt', 'a')
+                np.savetxt(rootPath+'/evolution'+str(self.interval)+'/' + userMat_name, userMat[time_Step])
+                np.savetxt(rootPath+'/evolution'+str(self.interval)+'/' + itemMat_name, itemMat[time_Step])
+                #
+                f = open(rootPath+'/evolution'+str(self.interval)+'/auc.txt', 'a')
                 Y_True, Y_Pred = self.prediction(timestamp, validationPath, userMat[time_Step], itemMat[time_Step],
                                                  itemSet)
                 auc = evolution.AUC(Y_True, Y_Pred)
-                auc_write = str(step) + ' step,auc=' + str(auc)
+                auc_write = str(step) + ' step,auc=' + str(auc)+'\n'
+                print(auc_write)
                 f.write(auc_write)
                 f.close()
 
