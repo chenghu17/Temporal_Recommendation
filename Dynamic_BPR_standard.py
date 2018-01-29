@@ -17,7 +17,8 @@ class DBPR():
     # alpha_Reg : the regularization parameter for Pu
     # gama : the regularization parameter
 
-    def __init__(self, trainPath, validationPath, d, t, userNum, itemNum, itemSet, step, alpha, alpha_Reg, gama):
+    def __init__(self, rootPath, trainPath, validationPath, d, t, userNum, itemNum, itemSet, step, alpha, alpha_Reg, gama):
+        self.rootPath = rootPath
         self.trainPath = trainPath
         self.validationPath = validationPath
         self.d = d
@@ -58,6 +59,7 @@ class DBPR():
         return Y_True, Y_Pred
 
     def Time_BPR(self):
+        rootPath = self.rootPath
         trainPath = self.trainPath
         validationPath = self.validationPath
         userNum = self.userNum
@@ -66,14 +68,12 @@ class DBPR():
         alpha = self.alpha
         gama = self.gama
         df_train = pd.read_csv(trainPath, sep='\t', header=None)
-        # userMat = np.random.random((userNum, self.d))
-        # itemMat = np.random.random((itemNum, self.d))
-        itemMat = np.loadtxt('evolution_standard/itemMat12.txt')
-        userMat = np.loadtxt('evolution_standard/userMat12.txt')
+        userMat = np.random.random((userNum, self.d))
+        itemMat = np.random.random((itemNum, self.d))
+        # itemMat = np.loadtxt('evolution_standard/itemMat12.txt')
+        # userMat = np.loadtxt('evolution_standard/userMat12.txt')
 
-        # 单个时间间隔中所包含的user集合
         userSet = set(df_train[0])
-        # 初始化包含单个时间间隔中每个用户所打过分的set
         user_item_List = [0 for n in range(userNum)]
         user_item_nega_List = [0 for n in range(userNum)]
         for userId in userSet:
@@ -83,8 +83,8 @@ class DBPR():
             user_item_List[userId] = item_tmp
             user_item_nega_List[userId] = item_nega
 
-        # for step in range(self.step):
-        for step in range(13, self.step):
+        for step in range(self.step):
+        # for step in range(13, self.step):
             starttime = time.time()
             for line in range(len(df_train)):
                 userId = df_train.iat[line, 0]
@@ -110,18 +110,20 @@ class DBPR():
                 itemMat[nega_item_id] = Qk - alpha * gradient_qk
 
             endtime = time.time()
-            print('%d step :%d' % (step, endtime - starttime))
-            if step % 3 == 0:
-                f = open('evolution_standard/auc.txt','a')
+            # print('%d step :%d' % (step, endtime - starttime))
+            if step % 8 == 0:
+                userMat_name = 'userMat' + str(step) + '.txt'
+                itemMat_name = 'itemMat' + str(step) + '.txt'
+                np.savetxt(rootPath+'/evolution_standard/' + userMat_name, userMat)
+                np.savetxt(rootPath+'/evolution_standard/' + itemMat_name, itemMat)
+
+                f = open(rootPath+'/evolution_standard/auc.txt','a')
                 Y_True, Y_Pred = self.prediction(validationPath, userMat, itemMat, itemSet)
                 auc = evolution.AUC(Y_True, Y_Pred)
-                auc_write = str(step)+' step,auc='+str(auc)
+                auc_write = str(step)+' step,auc='+str(auc)+'\n'
+                print(auc_write)
                 f.write(auc_write)
                 f.close()
                 # print('AUC:', auc)
-                userMat_name = 'userMat' + str(step) + '.txt'
-                itemMat_name = 'itemMat' + str(step) + '.txt'
-                np.savetxt('evolution_standard/' + userMat_name, userMat)
-                np.savetxt('evolution_standard/' + itemMat_name, itemMat)
 
         return userMat, itemMat
