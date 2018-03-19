@@ -39,3 +39,4 @@ if __name__ == '__main__':
     dBPR = Dynamic_BPR.DBPR(rootPath, trainPath, validationPath, d, interval, userNum, itemNum, itemSet, step, alpha, alpha_Reg, gama)
     userMat, itemMat = dBPR.Time_BPR()
     # evolution.reCall(validationPath, userMat, itemMat, K)
+
