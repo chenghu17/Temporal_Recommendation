@@ -5,10 +5,8 @@
 
 import numpy as np
 import pandas as pd
-import time
 
-
-# For dataset of movieLen
+# For data_MovieLen of movieLen
 def itemDict(path):
     item_dict = dict()
     item_data = pd.read_csv(path)
@@ -19,7 +17,6 @@ def itemDict(path):
         if key not in item_dict.keys():
             item_dict[key] = index
     return item_dict, itemNum
-
 
 # order by time:
 # 80% for training, 20% for testing
@@ -79,7 +76,7 @@ def testingData(testpath, item_dict, user_dict, userNum, itemNum):
     return testMat
 
 
-# For dataset of FM-1K
+# For data_MovieLen of FM-1K
 def itemSet(trainPath):
     itemset = set()
     df = pd.read_csv(trainPath, sep='\t', header=None)
