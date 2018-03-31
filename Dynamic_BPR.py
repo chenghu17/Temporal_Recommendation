@@ -8,7 +8,7 @@ import evolution
 from scipy.stats import logistic
 
 
-class DBPR():
+class DBPR:
 
     # d : dimensions of latent factor
     # t : size of time slices
