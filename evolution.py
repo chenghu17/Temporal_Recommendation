@@ -168,15 +168,15 @@ def NGCG():
 
 
 if __name__ == '__main__':
-    # rootPath = 'data_LastFM/'
+    rootPath = 'data_LastFM/'
     # rootPath = 'data_Epinions/'
-    rootPath = 'data_FineFoods/'
+    # rootPath = 'data_FineFoods/'
     resultPath = 'alpha_0.02_alphaReg_0.02_gama_0.02/'
     # resultPath = 'alpha_0.02_alphaReg_0.1_gama_0.1/'
     # resultPath = 'alpha_0.002_alphaReg_0.02_gama_0.02/'
     # trainPath = rootPath + 'train.tsv'
-    # validationPath = rootPath + 'validation.tsv'
-    validationPath = rootPath + 'validation.csv'
+    validationPath = rootPath + 'validation.tsv'
+    # validationPath = rootPath + 'validation.csv'
     timestamp_3 = 3 * 30 * 24 * 3600
     timestamp_6 = 6 * 30 * 24 * 3600
     timestamp_9 = 9 * 30 * 24 * 3600
@@ -184,13 +184,13 @@ if __name__ == '__main__':
     timestamp_18 = 18 * 30 * 24 * 3600
     timestamp_24 = 24 * 30 * 24 * 3600
     timestamp_standard = 0
-    k = 100
+    k = 20
 
     rootPath = rootPath + resultPath
 
-    # itemMat_3 = np.loadtxt(rootPath + 'evolution3/itemMat10.txt')
-    # userMat_3 = np.loadtxt(rootPath + 'evolution3/userMat10.txt')
-    #
+    itemMat_3 = np.loadtxt(rootPath + 'evolution3/itemMat10.txt')
+    userMat_3 = np.loadtxt(rootPath + 'evolution3/userMat10.txt')
+
     # itemMat_6 = np.loadtxt(rootPath + 'evolution6/itemMat20.txt')
     # userMat_6 = np.loadtxt(rootPath + 'evolution6/userMat20.txt')
     #
@@ -206,14 +206,14 @@ if __name__ == '__main__':
     # itemMat_24 = np.loadtxt(rootPath + 'evolution24/itemMat165.txt')
     # userMat_24 = np.loadtxt(rootPath + 'evolution24/userMat165.txt')
     #
-    itemMat_stand = np.loadtxt(rootPath + 'evolution_standard/itemMat496.txt')
-    userMat_stand = np.loadtxt(rootPath + 'evolution_standard/userMat496.txt')
+    # itemMat_stand = np.loadtxt(rootPath + 'evolution_standard/itemMat496.txt')
+    # userMat_stand = np.loadtxt(rootPath + 'evolution_standard/userMat496.txt')
 
-    # Precision_3 = Precision(validationPath, timestamp_3, userMat_3, itemMat_3, k)
-    # RECALL_3 = reCall(validationPath, timestamp_3, userMat_3, itemMat_3, k)
+    Precision_3 = Precision(validationPath, timestamp_3, userMat_3, itemMat_3, k)
+    RECALL_3 = reCall(validationPath, timestamp_3, userMat_3, itemMat_3, k)
     # MRR_3 = MRR(validationPath, timestamp_3, userMat_3, itemMat_3, k)
-    # print('Precision_3:', Precision_3)
-    # print('RECALL_3:', RECALL_3)
+    print('Precision_3:', Precision_3)
+    print('RECALL_3:', RECALL_3)
     # print('MRR_3:', MRR_3)
 
     # Precision_6 = Precision(validationPath, timestamp_6, userMat_6, itemMat_6, k)
@@ -241,9 +241,9 @@ if __name__ == '__main__':
     # print('Precision_24:', Precision_24)
     # print('RECALL_24:', RECALL_24)
     #
-    Precision_stand = Precision(validationPath, timestamp_standard, userMat_stand, itemMat_stand, k)
-    RECALL_stand = reCall(validationPath, timestamp_standard, userMat_stand, itemMat_stand, k)
-    print('Precision_stand:', Precision_stand)
-    print('RECALL_stand:', RECALL_stand)
+    # Precision_stand = Precision(validationPath, timestamp_standard, userMat_stand, itemMat_stand, k)
+    # RECALL_stand = reCall(validationPath, timestamp_standard, userMat_stand, itemMat_stand, k)
+    # print('Precision_stand:', Precision_stand)
+    # print('RECALL_stand:', RECALL_stand)
 
     # 根据求得的前一个时间间隔itemMat和userMat,对validation数据集计算各种evolution值

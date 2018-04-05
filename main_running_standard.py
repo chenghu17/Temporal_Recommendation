@@ -4,10 +4,10 @@ import pandas as pd
 
 if __name__ == '__main__':
     # standard_BPR test
-    # item_dict, itemNum = load_data.itemDict('dataset/movies.csv')
-    # userNum, user_dict = load_data.splitData('dataset/ratings.csv', 'dataset/train.csv', 'dataset/test.csv')
-    # ratingMat, timeMat = load_data.trainingData('dataset/train.csv', item_dict, user_dict, userNum, itemNum)
-    # testMat = load_data.testingData('dataset/test.csv', item_dict, user_dict, userNum, itemNum)
+    # item_dict, itemNum = load_data.itemDict('data_MovieLen/movies.csv')
+    # userNum, user_dict = load_data.splitData('data_MovieLen/ratings.csv', 'data_MovieLen/train.csv', 'data_MovieLen/test.csv')
+    # ratingMat, timeMat = load_data.trainingData('data_MovieLen/train.csv', item_dict, user_dict, userNum, itemNum)
+    # testMat = load_data.testingData('data_MovieLen/test.csv', item_dict, user_dict, userNum, itemNum)
     # d = 5
     # N = 1
     # t = 1
