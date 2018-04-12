@@ -1,14 +1,22 @@
 
 import numpy as np
 import pandas as pd
+import time
+
 
 
 if __name__ == '__main__':
+    
     # trainPath = 'data_FM/train.tsv'
-    validationPath = 'data_FM/validation.tsv'
-    df_validation = pd.read_csv(validationPath, sep='\t', header=None)
 
-    # userSet = list(df_validation[0].drop_duplicates())
+    validationPath = 'data_LastFM/ranking.tsv'
+    # validationPath = 'data_Epinions/validation.csv'
+    # validationPath = 'data_FineFoods/validation.csv'
+    df_validation = pd.read_csv(validationPath, sep='\t', header=None)
+    # print(df_validation.head(100))
+    userSet = list(df_validation[0].drop_duplicates())
+    print(len(userSet))
+
     # print(userSet)
     # a = set([1,2,2,3,4,5])
     # b = set([1])
