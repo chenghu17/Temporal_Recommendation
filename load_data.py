@@ -5,6 +5,9 @@
 
 import numpy as np
 import pandas as pd
+import time
+import json
+
 
 # For data_MovieLen of movieLen
 def itemDict(path):
@@ -17,6 +20,7 @@ def itemDict(path):
         if key not in item_dict.keys():
             item_dict[key] = index
     return item_dict, itemNum
+
 
 # order by time:
 # 80% for training, 20% for testing
@@ -115,7 +119,6 @@ def captureData(path, capPath):
 #     capPath = 'data_FineFoods/data.csv'
 #     captureData(path,capPath)
 
-
 # for data_Epinions
 def getData(path, getPath):
     sourceFile = open(path, 'r', encoding='ISO-8859-1')
@@ -148,6 +151,181 @@ def rebuildData(rootPath, path, k):
             userSetFile.writelines(user + '\n')
             # userSet_over20.add(user)
 
+
+# for netflix
+def rebuildNetData(filepath):
+    column = ['item', 'user', 'rating', 'timestamp']
+    df = pd.read_csv(filepath, header=None, names=column)
+    df_user = df.user
+    df = df.drop('user', axis=1)
+    # df = df.drop('user', axis=1)
+    df.insert(0, 'user', df_user)
+    df.rating = 1
+    # df.insert(0,'user',df_user)
+    df.to_csv('data_Netflix/data_four.csv', header=None, sep='\t', index=False)
+
+
+def changetime(filepath):
+    df = pd.read_csv(filepath, header=None, sep='\t')
+    # change yyyy-mm-dd to timestamp
+    for i in range(len(df[3])):
+        time_string = df.iat[i, 3] + ' 00:00:00'
+        st = time.strptime(time_string, '%Y-%m-%d %H:%M:%S')
+        timestamp = time.mktime(st)
+        df.iat[i, 3] = timestamp
+    df.to_csv('data_Netflix/data_four_stan.csv', header=None, sep='\t', index=False)
+
+
+# split train、validation、test data set according to timestamp
+def splitTimeData(filepath):
+    df = pd.read_csv(filepath, header=None, sep='\t')
+    max_Timestamp = 1135958400
+    min_Timestamp = 942249600
+    middle_Timestamp = 1104422400
+    df_train = df[(df[3] >= min_Timestamp) & (df[3] < middle_Timestamp)]
+    df_train.to_csv('data_Netflix/train_three.csv', sep='\t', header=None, index=False)
+    df_other = df[(df[3] >= middle_Timestamp) & (df[3] <= max_Timestamp)]
+    df_validation = df_other.sample(frac=0.5)
+    df_tmp = df_other.append(df_validation)
+    df_test = df_tmp.drop_duplicates(keep=False)
+    df_validation.to_csv('data_Netflix/validation_three.csv', sep='\t', header=None, index=False)
+    df_test.to_csv('data_Netflix/test_three.csv', sep='\t', header=None, index=False)
+
+
+def append():
+    df1 = pd.read_csv('data_Netflix/test_one.csv', header=None, sep='\t')
+    df2 = pd.read_csv('data_Netflix/test_two.csv', header=None, sep='\t')
+    df3 = pd.read_csv('data_Netflix/test_three.csv', header=None, sep='\t')
+    df4 = pd.read_csv('data_Netflix/test_four.csv', header=None, sep='\t')
+    result = df1.append([df2, df3, df4])
+    result.to_csv('data_Netflix/test.csv', header=None, index=False, sep='\t')
+
+
+def updateUserId(filepath, validation, test):
+
+    # df = pd.read_csv(filepath, header=None, sep='\t')
+    # user_id = dict()
+    # count = 0
+    # for i in range(len(df)):
+    #     userId = str(df.iat[i, 0])
+    #     if userId not in user_id.keys():
+    #         user_id[userId] = count
+    #         df.iat[i, 0] = count
+    #         count += 1
+    #     else:
+    #         df.iat[i, 0] = user_id[userId]
+    # # print(count)
+    # df.to_csv('data_Netflix/train_stan.csv', sep='\t', header=None, index=False)
+    # del df
+
+    # data = json.dumps(user_id)
+    # file = open('data_Netflix/user_dict.txt', 'w')
+    # file.write(data)
+
+    file = open('data_Netflix/user_dict.txt', 'r')
+    data = file.read()
+    user_id = json.loads(data)
+
+    df_validation = pd.read_csv(validation, header=None, sep='\t')
+    for i in range(len(df_validation)):
+        userId = str(df_validation.iat[i, 0])
+        if userId not in user_id.keys():
+            # delete this line
+            df_validation.drop(df_validation.index[[i]], inplace=True)
+        else:
+            df_validation.iat[i, 0] = user_id[userId]
+    df_validation.to_csv('data_Netflix/validation_stan.csv', header=None, sep='\t', index=False)
+    del df_validation
+
+    # df_test = pd.read_csv(test, header=None, sep='\t')
+    # for i in range(len(df_test)):
+    #     userId = str(df_test.iat[i, 0])
+    #     if userId not in user_id.keys():
+    #         # delete this line
+    #         df_test.drop(df_test.index[[i]], inplace=True)
+    #     else:
+    #         df_test.iat[i, 0] = user_id[userId]
+    # df_test.to_csv('data_Netflix/test_stan.csv', header=None, sep='\t', index=False)
+    # del df_test
+
+    # file = open('data_Netflix/test_user.tsv', 'w')
+    # for i in range(count):
+    #     line = str(i) + '\n'
+    #     file.write(line)
+    # file.close()
+
+
+def clearData(filepath, validation, test):
+    df = pd.read_csv(filepath, header=None, sep='\t')
+    df_validation = pd.read_csv(validation, header=None, sep='\t')
+    df_test = pd.read_csv(test, header=None, sep='\t')
+    user_id = dict()
+    count = 0
+    for i in range(len(df)):
+        userId = df.iat[i, 0]
+        if userId not in user_id.keys():
+            user_id[userId] = count
+            df.iat[i, 0] = count
+            count += 1
+        else:
+            user_id[userId] += 1
+    user_id_over20 = {key: value for key, value in user_id.items() if value >= 10}
+
+    for i in range(len(df)):
+        userId = df.iat[i, 0]
+        if userId not in user_id_over20.keys():
+            # delete this line
+            df.drop(df.index[[i]], inplace=True)
+    df.to_csv('data_Netflix/trainmiddle.csv', header=None, sep='\t', index=False)
+
+    for i in range(len(df_validation)):
+        userId = df_validation.iat[i, 0]
+        if userId not in user_id_over20.keys():
+            # delete this line
+            df_validation.drop(df_validation.index[[i]], inplace=True)
+    df_validation.to_csv('data_Netflix/validationmiddle.csv', header=None, sep='\t', index=False)
+
+    for i in range(len(df_test)):
+        userId = df_test.iat[i, 0]
+        if userId not in user_id_over20.keys():
+            # delete this line
+            df_test.drop(df_test.index[[i]], inplace=True)
+    df_test.to_csv('data_Netflix/testmiddle.csv', header=None, sep='\t', index=False)
+
+    # 清除完之后，还要对validation 和 test 进行相同的处理
+
+
+if __name__ == '__main__':
+    # filepath = 'data_Netflix/data_three_stan.csv'
+    # rebuildNetData(filepath)
+    # filepath1 = 'data_Netflix/data_one.csv'
+    # filepath2 = 'data_Netflix/data_two.csv'
+    # filepath3 = 'data_Netflix/data_three.csv'
+    # filepath4 = 'data_Netflix/data_four.csv'
+    # append(filepath1, filepath2)
+    # append(filepath3, filepath4)
+    # filepath = 'data_Netflix/data_one_two.csv'
+    # filepath2 = 'data_Netflix/data_three_four.csv'
+    # changetime(filepath)
+    # splitTimeData(filepath)
+    # append()
+
+    train = 'data_Netflix/train.csv'
+    validation = 'data_Netflix/validation.csv'
+    test = 'data_Netflix/test.csv'
+    train_stan = 'data_Netflix/train_stan.csv'
+    validation_stan = 'data_Netflix/validation_stan.csv'
+    test_stan = 'data_Netflix/test_stan.csv'
+    updateUserId(train, validation, test)
+
+    # clearData(train_stan, validation_stan, test_stan)
+
+
+    # 更改地址之后再调用，然后还要把user_name file 文件的注释去掉
+    # train_middle = 'data_Netflix/trainmiddle.csv'
+    # validation_middle = 'data_Netflix/validationmiddle.csv'
+    # test_middle = 'data_Netflix/testmiddle.csv'
+    # updateUserId(train_middle,validation_middle,test_middle)
 
 # 1、保留打分数超过k个的用户
 # if __name__ == '__main__':
