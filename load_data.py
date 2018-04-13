@@ -229,13 +229,16 @@ def updateUserId(filepath, validation, test):
     df_validation = pd.read_csv(validation, header=None, sep='\t')
     for i in range(len(df_validation)):
         userId = str(df_validation.iat[i, 0])
+        # 删除会导致内存过大
+        # 那不如新建一个文件，如果userId在dict里面，则把这一行写入到新文件中。（待实验）
         if userId not in user_id.keys():
             # delete this line
             df_validation.drop(df_validation.index[[i]], inplace=True)
+            # df_validation = df_validation.drop(i)
         else:
             df_validation.iat[i, 0] = user_id[userId]
     df_validation.to_csv('data_Netflix/validation_stan.csv', header=None, sep='\t', index=False)
-    del df_validation
+    # del df_validation
 
     # df_test = pd.read_csv(test, header=None, sep='\t')
     # for i in range(len(df_test)):
