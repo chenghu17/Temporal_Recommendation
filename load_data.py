@@ -154,7 +154,9 @@ def rebuildData(rootPath, path, k):
 
 
 # for netflix
-def rebuildNetData(filepath):
+
+
+def rebuildNetData(filepath, state):
     column = ['item', 'user', 'rating', 'timestamp']
     df = pd.read_csv(filepath, header=None, names=column)
     df_user = df.user
@@ -163,7 +165,7 @@ def rebuildNetData(filepath):
     df.insert(0, 'user', df_user)
     df.rating = 1
     # df.insert(0,'user',df_user)
-    df.to_csv('data_Netflix/data_four.csv', header=None, sep='\t', index=False)
+    df.to_csv('data_Netflix/data_' + state + '.csv', header=None, sep='\t', index=False)
 
 
 def changetime(filepath):
@@ -175,6 +177,15 @@ def changetime(filepath):
         timestamp = time.mktime(st)
         df.iat[i, 3] = timestamp
     df.to_csv('data_Netflix/data_four_stan.csv', header=None, sep='\t', index=False)
+
+
+def append():
+    df1 = pd.read_csv('data_Netflix/test_one.csv', header=None, sep='\t')
+    df2 = pd.read_csv('data_Netflix/test_two.csv', header=None, sep='\t')
+    df3 = pd.read_csv('data_Netflix/test_three.csv', header=None, sep='\t')
+    df4 = pd.read_csv('data_Netflix/test_four.csv', header=None, sep='\t')
+    result = df1.append([df2, df3, df4])
+    result.to_csv('data_Netflix/test.csv', header=None, index=False, sep='\t')
 
 
 # split train、validation、test data set according to timestamp
@@ -191,15 +202,6 @@ def splitTimeData(filepath):
     df_test = df_tmp.drop_duplicates(keep=False)
     df_validation.to_csv('data_Netflix/validation_three.csv', sep='\t', header=None, index=False)
     df_test.to_csv('data_Netflix/test_three.csv', sep='\t', header=None, index=False)
-
-
-def append():
-    df1 = pd.read_csv('data_Netflix/test_one.csv', header=None, sep='\t')
-    df2 = pd.read_csv('data_Netflix/test_two.csv', header=None, sep='\t')
-    df3 = pd.read_csv('data_Netflix/test_three.csv', header=None, sep='\t')
-    df4 = pd.read_csv('data_Netflix/test_four.csv', header=None, sep='\t')
-    result = df1.append([df2, df3, df4])
-    result.to_csv('data_Netflix/test.csv', header=None, index=False, sep='\t')
 
 
 def updateUserId(filepath, validation, test, state):
@@ -351,6 +353,8 @@ def clearData(filepath, validation, test):
 
 
 if __name__ == '__main__':
+
+    # rebuildNetData(filepath1,'one')
     # filepath = 'data_Netflix/data_three_stan.csv'
     # rebuildNetData(filepath)
     # filepath1 = 'data_Netflix/data_one.csv'
@@ -374,20 +378,38 @@ if __name__ == '__main__':
     trainmiddle = 'data_Netflix/trainmiddle.csv'
     validationmiddle = 'data_Netflix/validationmiddle.csv'
     testmiddle = 'data_Netflix/testmiddle.csv'
-    # # update user id
-    updateUserId(train, validation, test,'stan')
-    # # reserve value > 500
+    # # # update user id
+    updateUserId(train, validation, test, 'stan')
+    # # # reserve value > 500
     clearData(train_stan, validation_stan, test_stan)
-    # # update user id
-    updateUserId(trainmiddle, validationmiddle, testmiddle,'final')
-    # # update item id
+    # # # update user id
+    updateUserId(trainmiddle, validationmiddle, testmiddle, 'final')
+    # # # update item id
     trainfinal = 'data_Netflix/train_final.csv'
     validationfinal = 'data_Netflix/validation_final.csv'
     testfinal = 'data_Netflix/test_final.csv'
     updateUserId(trainfinal, validationfinal, testfinal, 'learn')
-    # # generator test_users.tsv file
+    # # # generator test_users.tsv file
     gettest_users(23928)
 
+    # convert 100028384.0 to 100028384
+    f = open('data_Netflix/test_learn.csv', 'r')
+    f_new = open('data_Netflix/test.tsv', 'a')
+    while 1:
+        lines = f.readlines(10000)
+        if not lines:
+            break
+        for line in lines:
+            stamp = (line.strip('\n').split('\t')[3]).split('.')[0]
+            line_new = line.strip('\n').split('\t')[0] + '\t' + line.strip('\n').split('\t')[1] + '\t' + \
+                       line.strip('\n').split('\t')[2] + '\t' + stamp + '\n'
+            f_new.write(line_new)
+
+
+    # df = pd.read_csv('data_Netflix/test_learn.csv', header=None, sep='\t')
+    # for i in range(len(df)):
+    #     df.iloc[i, 3] = str(int(df.iloc[i, 3]))
+    # df.to_csv('data_Netflix/test_learn_new.csv', header=None, sep='\t', index=False)
 
 # 1、保留打分数超过k个的用户
 # if __name__ == '__main__':

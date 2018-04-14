@@ -88,3 +88,21 @@ DPF复现
 dat -n 992 -m 983
 data_Epinions -n 1461 -m 17765
 data_FineFoods -n 1892 -m 19489
+data_Netflix -n 23928 -m 17771
+
+2018.4.14
+在对数据进行划分时，使用drop([row])来删除不符合条件的行数会导致内存大大增加，几十个G的内存量，最后会被系统强制退出
+最后是用来isin()的方法，即先对所有的睡觉进行判断，是否符合条件，符合为True，不符合为False，得到一个集合M
+然后再使用df[M]来进行筛选，返回符合条件的行的dataframe。
+
+对csv中浮点数转换为整数，即xxx.0的转换为xxx，遇到了一些麻烦，开始是想将数字转换为int，然后在转换为str型，发现执行起来特别慢；
+于是直接对文件进行操作，读取文件，然后每行用line.strip('\n').split('\t')[0]/[1]...来进行获取，
+对于xxx.0可以用(xxx.0).split('.')[0]来获取xxx部分，最后写入文件即可；且以下操作效果更好，既不会占用太多的内存，又可以提高执行速度
+                    f = open(filepath)
+                    while 1:
+                        lines = f.readlines(10000)
+                        if not line:
+                            break
+                        for line in lines:
+                            #operation
+
