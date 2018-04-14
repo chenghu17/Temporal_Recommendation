@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import time
 import json
+import csv
 
 
 # For data_MovieLen of movieLen
@@ -201,43 +202,55 @@ def append():
     result.to_csv('data_Netflix/test.csv', header=None, index=False, sep='\t')
 
 
-def updateUserId(filepath, validation, test):
-
-    # df = pd.read_csv(filepath, header=None, sep='\t')
-    # user_id = dict()
-    # count = 0
-    # for i in range(len(df)):
-    #     userId = str(df.iat[i, 0])
-    #     if userId not in user_id.keys():
-    #         user_id[userId] = count
-    #         df.iat[i, 0] = count
-    #         count += 1
-    #     else:
-    #         df.iat[i, 0] = user_id[userId]
-    # # print(count)
-    # df.to_csv('data_Netflix/train_stan.csv', sep='\t', header=None, index=False)
-    # del df
+def updateUserId(filepath, validation, test,state):
+    df = pd.read_csv(filepath, header=None, sep='\t')
+    user_id = dict()
+    count = 0
+    for i in range(len(df)):
+        userId = str(df.iat[i, 0])
+        if userId not in user_id.keys():
+            user_id[userId] = count
+            df.iat[i, 0] = count
+            count += 1
+        else:
+            df.iat[i, 0] = user_id[userId]
+    # print(count)
+    df.to_csv('data_Netflix/train_'+state+'.csv', sep='\t', header=None, index=False)
+    del df
 
     # data = json.dumps(user_id)
-    # file = open('data_Netflix/user_dict.txt', 'w')
+    # file = open('data_Netflix/user_dict_'+state+'.txt', 'w')
     # file.write(data)
 
-    file = open('data_Netflix/user_dict.txt', 'r')
-    data = file.read()
-    user_id = json.loads(data)
+    # file = open('data_Netflix/user_dict_'+state+'.txt', 'r')
+    # data = file.read()
+    # user_id = json.loads(data)
 
     df_validation = pd.read_csv(validation, header=None, sep='\t')
-    for i in range(len(df_validation)):
-        userId = str(df_validation.iat[i, 0])
-        # 删除会导致内存过大
-        # 那不如新建一个文件，如果userId在dict里面，则把这一行写入到新文件中。（待实验）
-        if userId not in user_id.keys():
-            # delete this line
-            df_validation.drop(df_validation.index[[i]], inplace=True)
-            # df_validation = df_validation.drop(i)
-        else:
-            df_validation.iat[i, 0] = user_id[userId]
-    df_validation.to_csv('data_Netflix/validation_stan.csv', header=None, sep='\t', index=False)
+    user = list(user_id.keys())
+    mask = df_validation[0].isin(user)
+    val = df_validation[mask]
+    del df_validation
+    for i in range(len(val)):
+        userId = str(val.iat[i, 0])
+        val.iat[i, 0] = user_id[userId]
+    val.to_csv('data_Netflix/validation_'+state+'.csv', header=None, sep='\t', index=False)
+
+    # 删除会导致内存过大
+    # 那不如新建一个文件，如果userId在dict里面，则把这一行写入到新文件中。（不适用，因为dataframe每一行不方便取）
+    # file = open('data_Netflix/user_dict_'+state+'.txt', 'r')
+    # data = file.read()
+    # user_id = json.loads(data)
+    # df_validation = pd.read_csv(validation, header=None, sep='\t')
+    # for i in range(len(df_validation)):
+    #     userId = str(df_validation.iat[i, 0])
+    #     if userId not in user_id.keys():
+    #         # delete this line
+    #         df_validation.drop(df_validation.index[[i]], inplace=True)
+    #         # df_validation = df_validation.drop(i)
+    #     else:
+    #         df_validation.iat[i, 0] = user_id[userId]
+    # df_validation.to_csv('data_Netflix/validation_'+state+'.csv', header=None, sep='\t', index=False)
     # del df_validation
 
     # df_test = pd.read_csv(test, header=None, sep='\t')
@@ -248,54 +261,90 @@ def updateUserId(filepath, validation, test):
     #         df_test.drop(df_test.index[[i]], inplace=True)
     #     else:
     #         df_test.iat[i, 0] = user_id[userId]
-    # df_test.to_csv('data_Netflix/test_stan.csv', header=None, sep='\t', index=False)
+    # df_test.to_csv('data_Netflix/test_'+state+'.csv', header=None, sep='\t', index=False)
     # del df_test
 
-    # file = open('data_Netflix/test_user.tsv', 'w')
-    # for i in range(count):
-    #     line = str(i) + '\n'
-    #     file.write(line)
-    # file.close()
+    df_test = pd.read_csv(test, header=None, sep='\t')
+    user = list(user_id.keys())
+    mask = df_test[0].isin(user)
+    tes = df_test[mask]
+    del df_test
+    for i in range(len(tes)):
+        userId = str(tes.iat[i, 0])
+        tes.iat[i, 0] = user_id[userId]
+    tes.to_csv('data_Netflix/test_'+state+'.csv', header=None, sep='\t', index=False)
+    del tes
 
 
+def updateItemId(filepath, validation, test,state):
+    df = pd.read_csv(filepath, header=None, sep='\t')
+    item_id = dict()
+    count = 0
+    for i in range(len(df)):
+        itemId = str(df.iat[i, 1])
+        if itemId not in item_id.keys():
+            item_id[itemId] = count
+            df.iat[i, 1] = count
+            count += 1
+        else:
+            df.iat[i, 1] = item_id[itemId]
+    df.to_csv('data_Netflix/train_'+state+'.csv', sep='\t', header=None, index=False)
+    del df
+
+    df_validation = pd.read_csv(validation, header=None, sep='\t')
+    item = list(item_id.keys())
+    mask = df_validation[1].isin(item)
+    val = df_validation[mask]
+    del df_validation
+    for i in range(len(val)):
+        itemId = str(val.iat[i, 1])
+        val.iat[i, 1] = item_id[itemId]
+    val.to_csv('data_Netflix/validation_'+state+'.csv', header=None, sep='\t', index=False)
+
+    df_test = pd.read_csv(test, header=None, sep='\t')
+    item = list(item_id.keys())
+    mask = df_test[1].isin(item)
+    tes = df_test[mask]
+    del df_test
+    for i in range(len(tes)):
+        itemId = str(tes.iat[i, 1])
+        tes.iat[i, 1] = item_id[itemId]
+    tes.to_csv('data_Netflix/test_'+state+'.csv', header=None, sep='\t', index=False)
+    del tes
+
+def gettest_users(user_number):
+    file = open('data_Netflix/test_users.tsv', 'r')
+    for i in range(user_number):
+        line = str(i) + '\n'
+        file.write(line)
+    file.close()
+
+# reserve value > 500
 def clearData(filepath, validation, test):
     df = pd.read_csv(filepath, header=None, sep='\t')
     df_validation = pd.read_csv(validation, header=None, sep='\t')
     df_test = pd.read_csv(test, header=None, sep='\t')
     user_id = dict()
-    count = 0
     for i in range(len(df)):
         userId = df.iat[i, 0]
         if userId not in user_id.keys():
-            user_id[userId] = count
-            df.iat[i, 0] = count
-            count += 1
+            user_id[userId] = 1
         else:
             user_id[userId] += 1
-    user_id_over20 = {key: value for key, value in user_id.items() if value >= 10}
+    user_id_over20 = {key: value for key, value in user_id.items() if value >= 500}
+    print(len(user_id_over20.keys()))
 
-    for i in range(len(df)):
-        userId = df.iat[i, 0]
-        if userId not in user_id_over20.keys():
-            # delete this line
-            df.drop(df.index[[i]], inplace=True)
-    df.to_csv('data_Netflix/trainmiddle.csv', header=None, sep='\t', index=False)
+    user = list(user_id_over20.keys())
+    train_user = df[0].isin(user)
+    trai = df[train_user]
+    validation_user = df_validation[0].isin(user)
+    val = df_validation[validation_user]
+    test_user = df_test[0].isin(user)
+    tes = df_test[test_user]
 
-    for i in range(len(df_validation)):
-        userId = df_validation.iat[i, 0]
-        if userId not in user_id_over20.keys():
-            # delete this line
-            df_validation.drop(df_validation.index[[i]], inplace=True)
-    df_validation.to_csv('data_Netflix/validationmiddle.csv', header=None, sep='\t', index=False)
-
-    for i in range(len(df_test)):
-        userId = df_test.iat[i, 0]
-        if userId not in user_id_over20.keys():
-            # delete this line
-            df_test.drop(df_test.index[[i]], inplace=True)
-    df_test.to_csv('data_Netflix/testmiddle.csv', header=None, sep='\t', index=False)
-
-    # 清除完之后，还要对validation 和 test 进行相同的处理
+    trai.to_csv('data_Netflix/trainmiddle.csv', header=None, sep='\t', index=False)
+    val.to_csv('data_Netflix/validationmiddle.csv', header=None, sep='\t', index=False)
+    tes.to_csv('data_Netflix/testmiddle.csv', header=None, sep='\t', index=False)
 
 
 if __name__ == '__main__':
@@ -319,10 +368,18 @@ if __name__ == '__main__':
     train_stan = 'data_Netflix/train_stan.csv'
     validation_stan = 'data_Netflix/validation_stan.csv'
     test_stan = 'data_Netflix/test_stan.csv'
-    updateUserId(train, validation, test)
+    trainmiddle = 'data_Netflix/trainmiddle.csv'
+    validationmiddle = 'data_Netflix/validationmiddle.csv'
+    testmiddle = 'data_Netflix/testmiddle.csv'
 
-    # clearData(train_stan, validation_stan, test_stan)
-
+    # updateUserId(train, validation, test,'stan')
+    clearData(train_stan, validation_stan, test_stan)
+    updateUserId(trainmiddle, validationmiddle, testmiddle,'final')
+    # update item id
+    trainfinal = 'data_Netflix/train_final.csv'
+    validationfinal = 'data_Netflix/train_final.csv'
+    testfinal
+    updateUserId(trainmiddle, validationmiddle, testmiddle,'learn')
 
     # 更改地址之后再调用，然后还要把user_name file 文件的注释去掉
     # train_middle = 'data_Netflix/trainmiddle.csv'
