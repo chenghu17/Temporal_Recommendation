@@ -168,9 +168,10 @@ def NGCG():
 
 
 if __name__ == '__main__':
-    rootPath = 'data_LastFM/'
+    # rootPath = 'data_LastFM/'
     # rootPath = 'data_Epinions/'
     # rootPath = 'data_FineFoods/'
+    rootPath = 'data_Netflix/'
     resultPath = 'alpha_0.02_alphaReg_0.02_gama_0.02/'
     # resultPath = 'alpha_0.02_alphaReg_0.1_gama_0.1/'
     # resultPath = 'alpha_0.002_alphaReg_0.02_gama_0.02/'
@@ -184,18 +185,18 @@ if __name__ == '__main__':
     timestamp_18 = 18 * 30 * 24 * 3600
     timestamp_24 = 24 * 30 * 24 * 3600
     timestamp_standard = 0
-    k = 20
+    k = 10
 
     rootPath = rootPath + resultPath
 
-    itemMat_3 = np.loadtxt(rootPath + 'evolution3/itemMat10.txt')
-    userMat_3 = np.loadtxt(rootPath + 'evolution3/userMat10.txt')
+    itemMat_3 = np.loadtxt(rootPath + 'evolution3/itemMat0.txt')
+    userMat_3 = np.loadtxt(rootPath + 'evolution3/userMat0.txt')
 
-    # itemMat_6 = np.loadtxt(rootPath + 'evolution6/itemMat20.txt')
-    # userMat_6 = np.loadtxt(rootPath + 'evolution6/userMat20.txt')
-    #
-    # itemMat_9 = np.loadtxt(rootPath + 'evolution9/itemMat25.txt')
-    # userMat_9 = np.loadtxt(rootPath + 'evolution9/userMat25.txt')
+    itemMat_6 = np.loadtxt(rootPath + 'evolution6/itemMat0.txt')
+    userMat_6 = np.loadtxt(rootPath + 'evolution6/userMat0.txt')
+
+    itemMat_9 = np.loadtxt(rootPath + 'evolution9/itemMat0.txt')
+    userMat_9 = np.loadtxt(rootPath + 'evolution9/userMat0.txt')
     #
     # itemMat_12 = np.loadtxt(rootPath + 'evolution12/itemMat90.txt')
     # userMat_12 = np.loadtxt(rootPath + 'evolution12/userMat90.txt')
@@ -216,15 +217,15 @@ if __name__ == '__main__':
     print('RECALL_3:', RECALL_3)
     # print('MRR_3:', MRR_3)
 
-    # Precision_6 = Precision(validationPath, timestamp_6, userMat_6, itemMat_6, k)
-    # RECALL_6 = reCall(validationPath, timestamp_6, userMat_6, itemMat_6, k)
-    # print('Precision_6:', Precision_6)
-    # print('RECALL_6:', RECALL_6)
+    Precision_6 = Precision(validationPath, timestamp_6, userMat_6, itemMat_6, k)
+    RECALL_6 = reCall(validationPath, timestamp_6, userMat_6, itemMat_6, k)
+    print('Precision_6:', Precision_6)
+    print('RECALL_6:', RECALL_6)
     # # #
-    # Precision_9 = Precision(validationPath, timestamp_9, userMat_9, itemMat_9, k)
-    # RECALL_9 = reCall(validationPath, timestamp_9, userMat_9, itemMat_9, k)
-    # print('Precision_9:', Precision_9)
-    # print('RECALL_9:', RECALL_9)
+    Precision_9 = Precision(validationPath, timestamp_9, userMat_9, itemMat_9, k)
+    RECALL_9 = reCall(validationPath, timestamp_9, userMat_9, itemMat_9, k)
+    print('Precision_9:', Precision_9)
+    print('RECALL_9:', RECALL_9)
     # #
     # Precision_12 = Precision(validationPath, timestamp_12, userMat_12, itemMat_12, k)
     # RECALL_12 = reCall(validationPath, timestamp_12, userMat_12, itemMat_12, k)
