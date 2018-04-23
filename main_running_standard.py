@@ -1,6 +1,5 @@
 import load_data
 import Dynamic_BPR_standard
-import pandas as pd
 
 if __name__ == '__main__':
     # standard_BPR test
@@ -17,8 +16,8 @@ if __name__ == '__main__':
     # rootPath = 'data_LastFM'
     # trainPath = rootPath + '/train.csv'
     # validationPath = rootPath + '/validation.csv'
-    trainPath = 'data_netflix/train.tsv'
-    validationPath = 'data_netflix/validation.tsv'
+    trainPath = 'data_Netflix/train.tsv'
+    validationPath = 'data_Netflix/validation.tsv'
     userNum = 23928
     itemNum = 17771
     # userPath = rootPath + '/user.txt'
