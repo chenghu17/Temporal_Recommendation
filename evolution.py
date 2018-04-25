@@ -11,7 +11,6 @@ def AUC(y_true, y_pred):
     auc = ras(y_true, y_pred)
     return auc
 
-
 def Precision(validationPath, timestamp, userMat, itemMat, K):
     df_validation = pd.read_csv(validationPath, sep='\t', header=None)
     # df_interval_current = 0
@@ -30,13 +29,15 @@ def Precision(validationPath, timestamp, userMat, itemMat, K):
     # count = 0
     # right = 0
     precisionRate = 0
+    # test
+    # user_right_item = open('user_right_item_' + str(K) + '.txt', 'a')
     for userId in userSet:
-
         # userId = df_validation.iat[u, 0]
         # itemId = df_validation.iat[u, 1]
         df_tmp = df_interval_current[df_interval_current[0] == userId]
         df_interval_currentItem = set(df_tmp[1])
         itemNum = len(df_interval_currentItem)
+        k = K if K < itemNum else itemNum
 
         Pu = userMat[userId]
         result = dict()
@@ -45,7 +46,7 @@ def Precision(validationPath, timestamp, userMat, itemMat, K):
             pro = np.dot(Pu, Qi)
             result[i] = pro
         # 判断前k个中是否存在itemId
-        top_k_values = heapq.nlargest(K, result.values())
+        top_k_values = heapq.nlargest(k, result.values())
         top_k_keys = list()
         for values in top_k_values:
             for keys in result.keys():
@@ -53,11 +54,11 @@ def Precision(validationPath, timestamp, userMat, itemMat, K):
                     top_k_keys.append(keys)
         # 取交集，计算
         TP = len(df_interval_currentItem & set(top_k_keys))
-        precisionRate += float(TP) / float(K)
+        # user_right_item.write(str(userId) + ":" + str(TP) + '\n')
+        precisionRate += float(TP) / float(k)
 
     precisionRate = precisionRate / len(userSet)
     return precisionRate
-
 
 def reCall(validationPath, timestamp, userMat, itemMat, K):
     df_validation = pd.read_csv(validationPath, sep='\t', header=None)
@@ -74,8 +75,6 @@ def reCall(validationPath, timestamp, userMat, itemMat, K):
         df_interval_current = df_validation
 
     userSet = list(df_interval_current[0].drop_duplicates())
-    # count = 0
-    # right = 0
     recallRate = 0
     for userId in userSet:
         df_tmp = df_interval_current[df_interval_current[0] == userId]
@@ -108,8 +107,9 @@ def RMSE():
     return
 
 
+# Mean Reciprocal Rank
 def MRR(validationPath, timestamp, userMat, itemMat, K):
-    #添加这个度量标准
+    # 添加这个度量标准
     df_validation = pd.read_csv(validationPath, sep='\t', header=None)
     # df_interval_current = 0
     if timestamp != 0:
@@ -124,7 +124,7 @@ def MRR(validationPath, timestamp, userMat, itemMat, K):
         df_interval_current = df_validation
 
     userSet = list(df_interval_current[0].drop_duplicates())
-    MRR  = 0
+    MRR = 0
     for userId in userSet:
         df_tmp = df_interval_current[df_interval_current[0] == userId]
         df_interval_currentItem = set(df_tmp[1])
@@ -144,13 +144,12 @@ def MRR(validationPath, timestamp, userMat, itemMat, K):
             for keys in result.keys():
                 if result[keys] == values:
                     top_k_keys.append(keys)
-
         num = 0
         MRR_rate = 0
         for key in top_k_keys:
             if key in df_interval_currentItem:
                 index = top_k_keys.index(key)
-                MRR_rate += 1.0/(index+1)
+                MRR_rate += 1.0 / (index + 1)
                 num += 1
         if num != 0:
             MRR_rate = MRR_rate / num
@@ -172,7 +171,8 @@ if __name__ == '__main__':
     # rootPath = 'data_Epinions/'
     # rootPath = 'data_FineFoods/'
     rootPath = 'data_Netflix/'
-    resultPath = 'alpha_0.02_alphaReg_0.02_gama_0.02/'
+    # resultPath = 'alpha_0.02_alphaReg_0.02_gama_0.02/'
+    resultPath = 'alpha_0.02_alphaReg_0.1_gama_0.02/'
     # resultPath = 'alpha_0.02_alphaReg_0.1_gama_0.1/'
     # resultPath = 'alpha_0.002_alphaReg_0.02_gama_0.02/'
     # trainPath = rootPath + 'train.tsv'
@@ -185,18 +185,21 @@ if __name__ == '__main__':
     timestamp_18 = 18 * 30 * 24 * 3600
     timestamp_24 = 24 * 30 * 24 * 3600
     timestamp_standard = 0
+    timestep_three = 3
+    timestep_six = 6
+    timestep_nine = 9
     k = 10
 
     rootPath = rootPath + resultPath
 
-    itemMat_3 = np.loadtxt(rootPath + 'evolution3/itemMat0.txt')
-    userMat_3 = np.loadtxt(rootPath + 'evolution3/userMat0.txt')
+    # itemMat_3 = np.loadtxt(rootPath + 'evolution3/itemMat0.txt')
+    # userMat_3 = np.loadtxt(rootPath + 'evolution3/userMat0.txt')
 
     itemMat_6 = np.loadtxt(rootPath + 'evolution6/itemMat0.txt')
     userMat_6 = np.loadtxt(rootPath + 'evolution6/userMat0.txt')
 
-    itemMat_9 = np.loadtxt(rootPath + 'evolution9/itemMat0.txt')
-    userMat_9 = np.loadtxt(rootPath + 'evolution9/userMat0.txt')
+    # itemMat_9 = np.loadtxt(rootPath + 'evolution9/itemMat0.txt')
+    # userMat_9 = np.loadtxt(rootPath + 'evolution9/userMat0.txt')
     #
     # itemMat_12 = np.loadtxt(rootPath + 'evolution12/itemMat90.txt')
     # userMat_12 = np.loadtxt(rootPath + 'evolution12/userMat90.txt')
@@ -207,25 +210,27 @@ if __name__ == '__main__':
     # itemMat_24 = np.loadtxt(rootPath + 'evolution24/itemMat165.txt')
     # userMat_24 = np.loadtxt(rootPath + 'evolution24/userMat165.txt')
     #
-    # itemMat_stand = np.loadtxt(rootPath + 'evolution_standard/itemMat496.txt')
-    # userMat_stand = np.loadtxt(rootPath + 'evolution_standard/userMat496.txt')
+    # itemMat_stand = np.loadtxt(rootPath + 'evolution0/itemMat0.txt')
+    # userMat_stand = np.loadtxt(rootPath + 'evolution0/userMat0.txt')
 
-    Precision_3 = Precision(validationPath, timestamp_3, userMat_3, itemMat_3, k)
-    RECALL_3 = reCall(validationPath, timestamp_3, userMat_3, itemMat_3, k)
-    # MRR_3 = MRR(validationPath, timestamp_3, userMat_3, itemMat_3, k)
-    print('Precision_3:', Precision_3)
-    print('RECALL_3:', RECALL_3)
+    # Precision_3 = Precision(validationPath, timestamp_3, userMat_3, itemMat_3, k)
+    # RECALL_3 = reCall(validationPath, timestamp_3, userMat_3, itemMat_3, k)
+    # # MRR_3 = MRR(validationPath, timestamp_3, userMat_3, itemMat_3, k)
+    # print('Precision_3:', Precision_3)
+    # print('RECALL_3:', RECALL_3)
     # print('MRR_3:', MRR_3)
 
     Precision_6 = Precision(validationPath, timestamp_6, userMat_6, itemMat_6, k)
-    RECALL_6 = reCall(validationPath, timestamp_6, userMat_6, itemMat_6, k)
+    # RECALL_6 = reCall(validationPath, timestamp_6, userMat_6, itemMat_6, k)
+    # MRR_6 = MRR(validationPath, timestamp_3, userMat_6, itemMat_6, k)
+    # print('MRR_6:',MRR_6)
     print('Precision_6:', Precision_6)
-    print('RECALL_6:', RECALL_6)
+    # print('RECALL_6:', RECALL_6)
     # # #
-    Precision_9 = Precision(validationPath, timestamp_9, userMat_9, itemMat_9, k)
-    RECALL_9 = reCall(validationPath, timestamp_9, userMat_9, itemMat_9, k)
-    print('Precision_9:', Precision_9)
-    print('RECALL_9:', RECALL_9)
+    # Precision_9 = Precision(validationPath, timestamp_9, userMat_9, itemMat_9, k)
+    # RECALL_9 = reCall(validationPath, timestamp_9, userMat_9, itemMat_9, k)
+    # print('Precision_9:', Precision_9)
+    # print('RECALL_9:', RECALL_9)
     # #
     # Precision_12 = Precision(validationPath, timestamp_12, userMat_12, itemMat_12, k)
     # RECALL_12 = reCall(validationPath, timestamp_12, userMat_12, itemMat_12, k)
