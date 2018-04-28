@@ -57,3 +57,52 @@ DBPR: step time
 4 step :2782
 5 step :2855
 6 step :5860
+
+2018.1.12
+根据之前讨论，接下来的任务是
+1、更改时间间隔（interval）
+2、使用别的度量标准 RMSE，可以使用已经训练好的矩阵来计算
+
+2018.1.13
+使用最好情况的userMat和itemMat来计算其他的度量标准
+DBPR选择之前AUC最好情况时的userMat30.txt和itemMat30.txt
+BPR选择之前AUC最好情况时的userMat48.txt和itemMat48.txt
+
+2018.1.14
+计算得到多种时间序列划分，然后分别计算得到AUC、Recall、Precision
+2018.1.15
+使用新的数据集进行训练、另外思考一下是否可以使用新的度量标准、以及对比实验还是不够完善
+
+dataset:FineFoods
+DPF复现
+
+2018.1.20
+1、对Epinions和FineFoods已经划分好的数据进行实验
+2、对dPF进行复现，直接跑C++程序
+3、计算recall和precision
+
+2018.1.23
+1、对dPF进行复现
+2、继续寻找合适的数据集进行训练
+
+dat -n 992 -m 983
+data_Epinions -n 1461 -m 17765
+data_FineFoods -n 1892 -m 19489
+data_Netflix -n 23928 -m 17771
+
+2018.4.14
+在对数据进行划分时，使用drop([row])来删除不符合条件的行数会导致内存大大增加，几十个G的内存量，最后会被系统强制退出
+最后是用来isin()的方法，即先对所有的睡觉进行判断，是否符合条件，符合为True，不符合为False，得到一个集合M
+然后再使用df[M]来进行筛选，返回符合条件的行的dataframe。
+
+对csv中浮点数转换为整数，即xxx.0的转换为xxx，遇到了一些麻烦，开始是想将数字转换为int，然后在转换为str型，发现执行起来特别慢；
+于是直接对文件进行操作，读取文件，然后每行用line.strip('\n').split('\t')[0]/[1]...来进行获取，
+对于xxx.0可以用(xxx.0).split('.')[0]来获取xxx部分，最后写入文件即可；且以下操作效果更好，既不会占用太多的内存，又可以提高执行速度
+                    f = open(filepath)
+                    while 1:
+                        lines = f.readlines(10000)
+                        if not line:
+                            break
+                        for line in lines:
+                            #operation
+

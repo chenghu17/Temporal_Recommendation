@@ -85,7 +85,7 @@ def trainingData(trainpath, item_dict, userNum, itemNum):
 
 
 def timestampTOtime(datapath):
-    f = open('dataset/time.txt', 'a')
+    f = open('data_MovieLen/time.txt', 'a')
     train_df = pd.read_csv(datapath)
     length = len(train_df)
     for i in range(length):
@@ -136,28 +136,28 @@ if __name__ == '__main__':
     title = 'Talk is cheap, Show me the code'
 
     # function1：extract column of user、timestamp、item
-    # df = pd.read_csv('dataset/dataset_full.tsv',sep='\t', header=None, error_bad_lines=False)
+    # df = pd.read_csv('data_MovieLen/dataset_full.tsv',sep='\t', header=None, error_bad_lines=False)
     # df = df[[0,1,4]]
     # df = df.dropna()
-    # df.to_csv('dataset/dataset_tmp.csv', header=False, index=False)
+    # df.to_csv('data_MovieLen/dataset_tmp.csv', header=False, index=False)
     # -------------------------------
 
     # function2：transform user_id to number
-    # df = pd.read_csv('dataset/userid.tsv',sep='\t', header=None)
+    # df = pd.read_csv('data_MovieLen/userid.tsv',sep='\t', header=None)
     # df = df[[0]]
     # userid_dict = dict()
     # for i in range(len(df)):
     #     userid = df.iat[i,0]
     #     userid_dict[userid] = i
-    # df_data = pd.read_csv('dataset/dataset_tmp.csv', header=None)
+    # df_data = pd.read_csv('data_MovieLen/dataset_tmp.csv', header=None)
     # for line in range(len(df_data)):
     #     userid = df_data.iat[line,0]
     #     df_data.iat[line, 0] = userid_dict[userid]
-    # df_data.to_csv('dataset/dataset_tmp.csv', header=False, index=False)
+    # df_data.to_csv('data_MovieLen/dataset_tmp.csv', header=False, index=False)
     # --------------------------------
 
     # function3：transform time to timestamp
-    # df = pd.read_csv('dataset/dataset_tmp.csv',header=None)
+    # df = pd.read_csv('data_MovieLen/dataset_tmp.csv',header=None)
     # for line in range(len(df)):
     #     timeStr = df.iat[line,1]
     #     # timeStr= '2008-06-09T21:08:37Z'
@@ -165,11 +165,11 @@ if __name__ == '__main__':
     #     timeStr = time.strptime(timeStr,'%Y-%m-%d %H:%M:%S')
     #     timestamp = time.mktime(timeStr)
     #     df.iat[line, 1] = timestamp
-    # df.to_csv('dataset/dataset_tmp.csv', header=False, index=False)
+    # df.to_csv('data_MovieLen/dataset_tmp.csv', header=False, index=False)
     # --------------------------------
 
     # function：calculate the number of music, and transform itemId to number
-    # df = pd.read_csv('dataset/dataset_tmp.csv',header=None)
+    # df = pd.read_csv('data_MovieLen/dataset_tmp.csv',header=None)
     # item_dict = dict()
     # index = 0
     # for line in range(len(df)):
@@ -180,17 +180,17 @@ if __name__ == '__main__':
     # print(index)
     # --------------------------------
 
-    # datapath = 'dataset/ratings.csv'
+    # datapath = 'data_MovieLen/ratings.csv'
     # timestampTOtime(datapath)
     # --------------------------------
 
-    # path = 'dataset/movies.csv'
+    # path = 'data_MovieLen/movies.csv'
     # item_dict, itemNum = itemDict(path)
-    # datapath = 'dataset/ratings.csv'
-    # trainpath = 'dataset/train.csv'
-    # testpath = 'dataset/test.csv'
+    # datapath = 'data_MovieLen/ratings.csv'
+    # trainpath = 'data_MovieLen/train.csv'
+    # testpath = 'data_MovieLen/test.csv'
     # userNum = splitData(datapath, trainpath, testpath)
-    # trainingData('dataset/train.csv', item_dict, userNum,itemNum)
+    # trainingData('data_MovieLen/train.csv', item_dict, userNum,itemNum)
     # --------------------------------
 
     # traindata = [
@@ -206,7 +206,7 @@ if __name__ == '__main__':
 
     # t = 18
     # timestamp = t * 30 * 24 * 3600
-    # trainPath = 'data_FM/train.tsv'
+    # trainPath = 'data_LastFM/train.tsv'
     # df_train = pd.read_csv(trainPath, sep='\t', header=None)
     # maxnum = pd.Series.max(df_train[3])
     # minnum = pd.Series.min(df_train[3])
@@ -231,7 +231,7 @@ if __name__ == '__main__':
     # t = 18
     # userNum = 1000
     # timestamp = t * 30 * 24 * 3600
-    # trainPath = 'data_FM/train.tsv'
+    # trainPath = 'data_LastFM/train.tsv'
     # df_train = pd.read_csv(trainPath, sep='\t', header=None)
     # max_Timestamp = pd.Series.max(df_train[3])
     # min_Timestamp = pd.Series.min(df_train[3])
@@ -252,8 +252,8 @@ if __name__ == '__main__':
     #         user_item_List[userId] = item_tmp
     #     user_item_time[t] = user_item_List
 
-    # trainPath = 'data_FM/train.tsv'
-    # validationPath = 'data_FM/validation.tsv'
+    # trainPath = 'data_LastFM/train.tsv'
+    # validationPath = 'data_LastFM/validation.tsv'
     # itemMat = np.loadtxt('evolution/itemMat0.txt')
     # userMat = np.loadtxt('evolution/userMat0.txt')
     # itemset = itemSet(trainPath)
@@ -262,12 +262,20 @@ if __name__ == '__main__':
     # auc = evolution.AUC(Y_True, Y_Pred)
     # print('AUC:', auc)
 
-    f = open('evolution_standard/auc.txt','a')
-    for i in range(10):
-        f.write(str(i)+'\n')
-    f.close()
 
     # print(type(itemMat))
     # for step in range(10):
     #     userMat_name = 'userMat' + str(step) + '.txt'
     #     print(userMat_name)
+
+    df = pd.read_csv('data_Epinions/train.csv', sep='\t', header=None)
+    # df = pd.read_csv('data_Epinions/validation.csv', sep='\t', header=None)
+    max_Timestamp = pd.Series.max(df[3])
+    min_Timestamp = pd.Series.min(df[3])
+    max_st = time.localtime(max_Timestamp)
+    min_st = time.localtime(min_Timestamp)
+    max_datatime = time.strftime('%Y-%m-%d %H:%M:%S', max_st)
+    min_datatime = time.strftime('%Y-%m-%d %H:%M:%S', min_st)
+
+    print(max_datatime)
+    print(min_datatime)
