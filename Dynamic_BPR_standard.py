@@ -16,13 +16,13 @@ class DBPR():
     # alpha : the learning rate
     # alpha_Reg : the regularization parameter for Pu
     # gama : the regularization parameter
+    # format is same with the version of servers
 
-    def __init__(self, trainPath, validationPath, d, t, userNum, itemNum, itemSet, step, alpha, alpha_Reg, gama):
+    def __init__(self, rootPath, trainPath, validationPath, d, userNum, itemNum, itemSet, step, alpha, alpha_Reg, gama):
+        self.rootPath = rootPath
         self.trainPath = trainPath
         self.validationPath = validationPath
         self.d = d
-        # t可以是时间间隔的timestamp表示
-        self.t = t
         self.userNum = userNum
         self.itemNum = itemNum
         self.itemSet = itemSet
@@ -51,13 +51,13 @@ class DBPR():
             true.append(0)
             Y = np.dot(Pu, Qk)
             pred.append(Y)
-            # print(u)
 
         Y_True = np.array(true)
         Y_Pred = np.array(pred)
         return Y_True, Y_Pred
 
     def Time_BPR(self):
+        rootPath = self.rootPath
         trainPath = self.trainPath
         validationPath = self.validationPath
         userNum = self.userNum
@@ -66,14 +66,10 @@ class DBPR():
         alpha = self.alpha
         gama = self.gama
         df_train = pd.read_csv(trainPath, sep='\t', header=None)
-        # userMat = np.random.random((userNum, self.d))
-        # itemMat = np.random.random((itemNum, self.d))
-        itemMat = np.loadtxt('evolution_standard/itemMat12.txt')
-        userMat = np.loadtxt('evolution_standard/userMat12.txt')
+        userMat = np.random.random((userNum, self.d))
+        itemMat = np.random.random((itemNum, self.d))
 
-        # 单个时间间隔中所包含的user集合
         userSet = set(df_train[0])
-        # 初始化包含单个时间间隔中每个用户所打过分的set
         user_item_List = [0 for n in range(userNum)]
         user_item_nega_List = [0 for n in range(userNum)]
         for userId in userSet:
@@ -83,19 +79,12 @@ class DBPR():
             user_item_List[userId] = item_tmp
             user_item_nega_List[userId] = item_nega
 
-        # for step in range(self.step):
-        for step in range(13, self.step):
-            starttime = time.time()
+        for step in range(self.step):
             for line in range(len(df_train)):
                 userId = df_train.iat[line, 0]
                 itemId = df_train.iat[line, 1]
                 Pu = userMat[userId]
                 Qi = itemMat[itemId]
-                # tmp_train = df_train[df_train[0] == userId]
-                # item_rating_set = set(tmp_train[1])
-                # negative_item_set = itemSet - user_item_List[userId]
-                # negative sampling, negative number is 1
-                # nega_item_id = random.choice(list(negative_item_set))
                 nega_item_id = random.choice(list(user_item_nega_List[userId]))
                 Qk = itemMat[nega_item_id]
                 eik = np.dot(Pu, Qi) - np.dot(Pu, Qk)
@@ -108,20 +97,20 @@ class DBPR():
                 userMat[userId] = Pu - alpha * gradient_pu
                 itemMat[itemId] = Qi - alpha * gradient_qi
                 itemMat[nega_item_id] = Qk - alpha * gradient_qk
-
-            endtime = time.time()
-            print('%d step :%d' % (step, endtime - starttime))
-            if step % 3 == 0:
-                f = open('evolution_standard/auc.txt','a')
-                Y_True, Y_Pred = self.prediction(validationPath, userMat, itemMat, itemSet)
-                auc = evolution.AUC(Y_True, Y_Pred)
-                auc_write = str(step)+' step,auc='+str(auc)
-                f.write(auc_write)
-                f.close()
-                # print('AUC:', auc)
+            # endtime = time.time()
+            # print('%d step :%d' % (step, endtime - starttime))
+            if step % 2 == 0:
                 userMat_name = 'userMat' + str(step) + '.txt'
                 itemMat_name = 'itemMat' + str(step) + '.txt'
-                np.savetxt('evolution_standard/' + userMat_name, userMat)
-                np.savetxt('evolution_standard/' + itemMat_name, itemMat)
+                np.savetxt(rootPath + 'evolution0/' + userMat_name, userMat)
+                np.savetxt(rootPath + 'evolution0/' + itemMat_name, itemMat)
+
+                f = open(rootPath + 'evolution0/auc.txt','a')
+                Y_True, Y_Pred = self.prediction(validationPath, userMat, itemMat, itemSet)
+                auc = evolution.AUC(Y_True, Y_Pred)
+                auc_write = str(step)+' step,auc='+str(auc)+'\n'
+                print(auc_write)
+                f.write(auc_write)
+                f.close()
 
         return userMat, itemMat

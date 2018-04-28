@@ -1,15 +1,16 @@
 import load_data
-import Dynamic_BPR_standard
+import Dynamic_BPR_strengthen
 
 if __name__ == '__main__':
 
     # rootPath = 'data_LastFM/'
     # rootPath = 'data_Epinions/'
-    rootPath = 'data_FineFoods/'
-    # rootPath = 'data_Netflix/'
+    # rootPath = 'data_FineFoods/'
+    rootPath = 'data_Netflix/'
     trainPath = rootPath + 'train.tsv'
     validationPath = rootPath + 'validation.tsv'
-
+    # 每个时间间隔包含多少个月，在实验中，interval取值为3，6，9
+    interval = 9
     d = 10
     step = 200
     alpha = 0.02
@@ -18,19 +19,19 @@ if __name__ == '__main__':
     resultPath = 'alpha_' + str(alpha) + '_alphaReg_' + str(alpha_Reg) + '_gama_' + str(gama) + '/'
     rootPath = rootPath + resultPath
     # for lastfm
-    # n = 1000
-    # m = 1000
+    # n = 992
+    # m = 983
     # for epinions
     # n = 1461
     # m = 17765
     # for finefoods
-    n = 1892
-    m = 19489
+    # n = 1892
+    # m = 19489
     # for netflix
-    # n = 23928
-    # m = 17771
+    n = 23928
+    m = 17771
 
     itemSet = load_data.itemSet(trainPath)
-    dBPR = Dynamic_BPR_standard.DBPR(rootPath, trainPath, validationPath, d, n, m, itemSet, step, alpha,
-                                     alpha_Reg, gama)
+    dBPR = Dynamic_BPR_strengthen.DBPR(rootPath, trainPath, validationPath, d, interval, n, m,
+                                                itemSet, step, alpha, alpha_Reg, gama)
     userMat, itemMat = dBPR.Time_BPR()

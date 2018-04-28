@@ -17,7 +17,8 @@ class DBPR:
     # alpha_Reg : the regularization parameter for Pu
     # gama : the regularization parameter
 
-    def __init__(self, rootPath, trainPath, validationPath, d, interval, userNum, itemNum, itemSet, step, alpha, alpha_Reg, gama):
+    def __init__(self, rootPath, trainPath, validationPath, d, interval, userNum, itemNum, itemSet, step, alpha,
+                 alpha_Reg, gama):
         self.rootPath = rootPath
         self.trainPath = trainPath
         self.validationPath = validationPath
@@ -75,6 +76,7 @@ class DBPR:
         userNum = self.userNum
         itemNum = self.itemNum
         itemSet = self.itemSet
+        userSet = set(range(userNum))
         timestamp = self.interval * 30 * 24 * 3600
         alpha = self.alpha
         alpha_Reg = self.alpha_Reg
@@ -98,22 +100,22 @@ class DBPR:
             level_up_current = level_down_current + timestamp
             df_interval_current = df_train[(df_train[3] >= level_down_current) & (df_train[3] < level_up_current)]
             # 单个时间间隔中所包含的user集合
-            userSet = set(df_interval_current[0])
+            userSet_interval = set(df_interval_current[0])
             # 初始化包含单个时间间隔中每个用户所打过分的set
             user_item_Set = [0 for n in range(userNum)]
-            for userId in userSet:
+            for userId in userSet_interval:
                 df_tmp = df_interval_current[df_interval_current[0] == userId]
                 item_tmp = set(df_tmp[1])
                 user_item_Set[userId] = item_tmp
-            # 包含每个时间间隔中每个用户所打过分的set，用于计算未打过分的负样本
             user_item_time[t] = user_item_Set
+            # ------判断user_item_time[t][user_Id]的数量，0则表示用户在当前时间段没有给任何项打过分
 
         for step in range(self.step):
-            starttime = time.time()
             for t in range(1, time_Step + 1):
                 level_down_current = min_Timestamp + (t - 1) * timestamp
                 level_up_current = level_down_current + timestamp
                 df_interval_current = df_train[(df_train[3] >= level_down_current) & (df_train[3] < level_up_current)]
+                # the first time interval
                 if t == 1:
                     for line in range(len(df_interval_current)):
                         userId = df_interval_current.iat[line, 0]
@@ -122,26 +124,28 @@ class DBPR:
                         Qi = itemMat[t][itemId]
                         # according to interval & userId, get rating set, and then get negative set
                         item_rating_set = user_item_time[t][userId]
-                        negative_item_set = itemSet - item_rating_set
-                        # negative sampling, negative number is 1
-                        nega_item_id = random.choice(list(negative_item_set))
-                        Qk = itemMat[t][nega_item_id]
-                        eik = np.dot(Pu, Qi) - np.dot(Pu, Qk)
-                        logisticResult = logistic.cdf(-eik)
-                        # calculate every gradient
-                        gradient_pu = logisticResult * (Qk - Qi) + gama * Pu
-                        gradient_qi = logisticResult * (-Pu) + gama * Qi
-                        gradient_qk = logisticResult * (Pu) + gama * Qk
-                        # update every vector
-                        userMat[t][userId] = Pu - alpha * gradient_pu
-                        itemMat[t][itemId] = Qi - alpha * gradient_qi
-                        itemMat[t][nega_item_id] = Qk - alpha * gradient_qk
-
+                        # ---------这里就要判断item_rating_set是否存在项
+                        if len(item_rating_set) != 0:
+                            negative_item_set = itemSet - item_rating_set
+                            # negative sampling, negative number is 1
+                            nega_item_id = random.choice(list(negative_item_set))
+                            Qk = itemMat[t][nega_item_id]
+                            eik = np.dot(Pu, Qi) - np.dot(Pu, Qk)
+                            logisticResult = logistic.cdf(-eik)
+                            # calculate every gradient
+                            gradient_pu = logisticResult * (Qk - Qi) + gama * Pu
+                            gradient_qi = logisticResult * (-Pu) + gama * Qi
+                            gradient_qk = logisticResult * (Pu) + gama * Qk
+                            # update every vector
+                            userMat[t][userId] = Pu - alpha * gradient_pu
+                            itemMat[t][itemId] = Qi - alpha * gradient_qi
+                            itemMat[t][nega_item_id] = Qk - alpha * gradient_qk
                 else:
                     last_t = t - 1
                     # level_down_last = level_down_current - timestamp
                     # level_up_last = level_down_current
                     # df_interval_last = df_train[(df_train[3] >= level_down_last) & (df_train[3] < level_up_last)]
+
                     for line in range(len(df_interval_current)):
                         # if current line == 0
                         # how is going？
@@ -166,14 +170,14 @@ class DBPR:
                         if last_rating_set != 0:
                             last_rating_id = random.choice(list(last_rating_set))
                             Qj_last = itemMat[last_t][last_rating_id]
-
+                            # 前后相邻时间段用户都有打分项
                             eii = np.dot(Pu, Qi) - np.dot(Pu_last, Qi_last)
                             eik = np.dot(Pu, Qi) - np.dot(Pu, Qk)
                             ejk = np.dot(Pu_last, Qj_last) - np.dot(Pu, Qk)
+                            # ------------------------
                             eii_logistic = logistic.cdf(-eii)
                             eik_logistic = logistic.cdf(-eik)
                             ejk_logistic = logistic.cdf(-ejk)
-
                             # calculate every gradient
                             gradient_pu = eii_logistic * (-Qi) + eik_logistic * (Qk - Qi) + ejk_logistic * (
                                 Qk) + alpha_Reg * (Pu - Pu_last) + gama * Pu
@@ -184,36 +188,61 @@ class DBPR:
                             eik = np.dot(Pu, Qi) - np.dot(Pu, Qk)
                             eii_logistic = logistic.cdf(-eii)
                             eik_logistic = logistic.cdf(-eik)
-
                             # calculate every gradient
                             gradient_pu = eii_logistic * (-Qi) + eik_logistic * (Qk - Qi) + alpha_Reg * (
                                     Pu - Pu_last) + gama * Pu
                             gradient_qi = eii_logistic * (-Pu) + eik_logistic * (-Pu) + gama * Qi
                             gradient_qk = eik_logistic * (Pu) + gama * Qk
+
                         # update every vector
                         userMat[t][userId] = Pu - alpha * gradient_pu
                         itemMat[t][itemId] = Qi - alpha * gradient_qi
                         itemMat[t][nega_item_id] = Qk - alpha * gradient_qk
+                    # 对于在当前interval没有打分的用户，应该和上一次进行比较
+                    # 如果上一次打过分，则使用模型中第三项进行训练；
+                    # 如果上一次没有打过分，则此时的用户向量和上一次的相等或者存在一定的权重关系
+                    userSet_interval = set(df_interval_current[0])
+                    user_no_record = userSet - userSet_interval
+                    for user_id in user_no_record:
+                        # 用户上一个时间段打分项
+                        last_rating_set = user_item_time[last_t][user_id]
+                        # 上一个时间段该用户存在打分项目
+                        if last_rating_set != 0:
+                            Pu = userMat[t][user_id]
+                            Pu_last = userMat[last_t][user_id]
+                            nega_item_id = random.choice(list(itemSet))
+                            Qk = itemMat[t][nega_item_id]
+                            last_rating_id = random.choice(list(last_rating_set))
+                            Qj_last = itemMat[last_t][last_rating_id]
+                            # 前一个时间有打分，这个时间段用户没有打分
+                            ejk = np.dot(Pu_last, Qj_last) - np.dot(Pu, Qk)
+                            # ------------------------
+                            ejk_logistic = logistic.cdf(-ejk)
+                            # calculate every gradient
+                            gradient_pu = ejk_logistic * (
+                                Qk) + alpha_Reg * (Pu - Pu_last) + gama * Pu
+                            gradient_qk = ejk_logistic * (Pu) + gama * Qk
+                            userMat[t][user_id] = Pu - alpha * gradient_pu
+                            itemMat[t][nega_item_id] = Qk - alpha * gradient_qk
+                        else:
+                            userMat[t][user_id] = userMat[last_t][user_id]
 
             # Y_True, Y_Pred = self.prediction(validationPath, userMat[time_Step], itemMat[time_Step], itemSet)
             # auc = evolution.AUC(Y_True, Y_Pred)
             # print('AUC:', auc)
-            endtime = time.time()
-            # print('%d step :%d' % (step, endtime - starttime))
-            if step % 3 == 0:
+            if step % 2 == 0:
                 userMat_name = 'userMat' + str(step) + '.txt'
                 itemMat_name = 'itemMat' + str(step) + '.txt'
-                np.savetxt(rootPath+'evolution'+str(self.interval)+'/' + userMat_name, userMat[time_Step])
-                np.savetxt(rootPath+'evolution'+str(self.interval)+'/' + itemMat_name, itemMat[time_Step])
+                np.savetxt(rootPath + 'evolution' + str(self.interval) + '/' + userMat_name, userMat[time_Step])
+                np.savetxt(rootPath + 'evolution' + str(self.interval) + '/' + itemMat_name, itemMat[time_Step])
                 #
-                f = open(rootPath+'evolution'+str(self.interval)+'/auc.txt', 'a')
+                f = open(rootPath + 'evolution' + str(self.interval) + '/auc.txt', 'a')
                 Y_True, Y_Pred = self.prediction(timestamp, validationPath, userMat[time_Step], itemMat[time_Step],
                                                  itemSet)
                 auc = evolution.AUC(Y_True, Y_Pred)
-                auc_write = str(step) + ' step,auc=' + str(auc)+'\n'
+                auc_write = str(step) + ' step,auc=' + str(auc) + '\n'
                 # print(auc_write)
                 f.write(auc_write)
                 f.close()
-
 
         return userMat[time_Step], itemMat[time_Step]
