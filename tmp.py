@@ -5,7 +5,7 @@ import time
 if __name__ == '__main__':
     # trainPath = 'data_FM/train.tsv'
 
-    # validationPath = 'data_LastFM/ranking.tsv'
+    # validationPath = 'data_LastFM/ranking100.tsv'
     # validationPath = 'data_Epinions/validation.csv'
     # validationPath = 'data_FineFoods/validation.csv'
     # df_validation = pd.read_csv(validationPath, sep='\t', header=None)
@@ -23,14 +23,11 @@ if __name__ == '__main__':
     # itemMat_stand = np.loadtxt('evolution_standard/itemMat30.txt')
     # userMat_stand = np.loadtxt('evolution_standard/userMat30.txt')
 
-    file = open('data_Epinions/test_user.tsv','a')
 
-    for i in range(1461):
-        file.write(str(i)+'\n')
-
-    # st = time.localtime(1135958400.0)
-    # st = time.localtime(942249600.0)
-    # print(time.strftime('%Y-%m-%d %H:%M:%S', st))
+    st_max = time.localtime(1427784002)
+    st_min = time.localtime(824835410)
+    print(time.strftime('%Y-%m-%d %H:%M:%S', st_max))
+    print(time.strftime('%Y-%m-%d %H:%M:%S', st_min))
 
     # st = time.strptime('2004-12-31 00:00:00','%Y-%m-%d %H:%M:%S')
     # print(time.mktime(st))

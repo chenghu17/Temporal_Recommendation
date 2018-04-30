@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import random
 import time
-import evolution
+import metric
 from scipy.stats import logistic
 
 
@@ -107,9 +107,9 @@ class DBPR():
 
                 f = open(rootPath + 'evolution0/auc.txt','a')
                 Y_True, Y_Pred = self.prediction(validationPath, userMat, itemMat, itemSet)
-                auc = evolution.AUC(Y_True, Y_Pred)
+                auc = metric.AUC(Y_True, Y_Pred)
                 auc_write = str(step)+' step,auc='+str(auc)+'\n'
-                print(auc_write)
+                # print(auc_write)
                 f.write(auc_write)
                 f.close()
 

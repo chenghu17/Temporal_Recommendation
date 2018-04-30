@@ -105,4 +105,19 @@ data_Netflix -n 23928 -m 17771
                             break
                         for line in lines:
                             #operation
+2018.4.28
+对几个数据集都训练完毕，但是git错误，误删除
+对第一个时间段进行增加，来训练看是否有提高
 
+2018.4.30
+MovieLen
+max_Timestamp: 1427784002
+min_Timestamp 824835410
+usernumber: 10702
+itemnumber: 26231
+
+
+movielen的validation和test中user的数量为1900左右
+netflix的validation和test中user的数量为23420左右
+
+main_running_standard.py 中 0.02-0.02-0.02的参数还没有训练

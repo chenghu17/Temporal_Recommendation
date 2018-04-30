@@ -6,8 +6,7 @@
 import numpy as np
 import pandas as pd
 import time
-import json
-import csv
+import os
 
 
 # For data_MovieLen of movieLen
@@ -154,8 +153,6 @@ def rebuildData(rootPath, path, k):
 
 
 # for netflix
-
-
 def rebuildNetData(filepath, state):
     column = ['item', 'user', 'rating', 'timestamp']
     df = pd.read_csv(filepath, header=None, names=column)
@@ -316,14 +313,6 @@ def updateItemId(filepath, validation, test, state):
     del tes
 
 
-def gettest_users(user_number):
-    file = open('data_Netflix/test_users.tsv', 'a')
-    for i in range(user_number):
-        line = str(i) + '\n'
-        file.write(line)
-    file.close()
-
-
 # reserve value > 500
 def clearData(filepath, validation, test):
     df = pd.read_csv(filepath, header=None, sep='\t')
@@ -352,64 +341,208 @@ def clearData(filepath, validation, test):
     tes.to_csv('data_Netflix/testmiddle.csv', header=None, sep='\t', index=False)
 
 
+# for movielen
+# reserve value > 400
+def analyze(datapath, objectpath):
+    # data_df = pd.read_csv(datapath)
+    # # f = open(objectpath,'a')
+    # user = list(data_df['userId'].drop_duplicates())
+    # userNum = len(user)
+    # print(userNum)
+    # count = 0
+    # for user_id in user:
+    #     split_data = data_df[data_df['userId'] == user_id]
+    #     if len(split_data)>200:
+    #         count += 1
+    # print(count)
+    df = pd.read_csv(datapath, header=None)
+    user_id = dict()
+    for i in range(len(df)):
+        userId = df.iat[i, 0]
+        if userId not in user_id.keys():
+            user_id[userId] = 1
+        else:
+            user_id[userId] += 1
+    user_id_over400 = {key: value for key, value in user_id.items() if value >= 400}
+    # print(len(user_id_over20.keys()))
+    user = list(user_id_over400.keys())
+    data_user = df[0].isin(user)
+    data = df[data_user]
+    data.to_csv(objectpath, header=None, sep='\t', index=False)
+
+
+def gettest_users(userpath, user_number):
+    file = open(userpath, 'a')
+    for i in range(user_number):
+        line = str(i) + '\n'
+        file.write(line)
+    file.close()
+
+
+def updateUserId_movie(filepath, resultpath):
+    df = pd.read_csv(filepath, header=None, sep='\t')
+    user_id = dict()
+    count = 0
+    for i in range(len(df)):
+        userId = str(df.iat[i, 0])
+        if userId not in user_id.keys():
+            user_id[userId] = count
+            df.iat[i, 0] = count
+            count += 1
+        else:
+            df.iat[i, 0] = user_id[userId]
+    print('userid:', count)
+    df.to_csv(resultpath, sep='\t', header=None, index=False)
+
+
+def updateItemId_movie(resultpath, finalpath):
+    df = pd.read_csv(resultpath, header=None, sep='\t')
+    item_id = dict()
+    count = 0
+    for i in range(len(df)):
+        itemId = str(df.iat[i, 1])
+        if itemId not in item_id.keys():
+            item_id[itemId] = count
+            df.iat[i, 1] = count
+            count += 1
+        else:
+            df.iat[i, 1] = item_id[itemId]
+    print('itemid:', count)
+    df.to_csv(finalpath, sep='\t', header=None, index=False)
+    print(count)
+    del df
+
+
+# split train、validation、test data set according to timestamp
+def splitTimeData_movie(finalpath, endpath):
+    df = pd.read_csv(finalpath, header=None, sep='\t')
+
+    max_Timestamp = pd.Series.max(df[3])
+    min_Timestamp = pd.Series.min(df[3])
+    print('max_Timestamp:', max_Timestamp)
+    print('min_Timestamp', min_Timestamp)
+    print('usernumber:', len(df[0].drop_duplicates()))
+    print('itemnumber:', len(df[1].drop_duplicates()))
+    f = open(endpath, 'a')
+    for i in range(len(df)):
+        result = str(df.iat[i, 0]) + '\t' + str(df.iat[i, 1]) + '\t' + str(1) + '\t' + str(df.iat[i, 3]) + '\n'
+        f.write(result)
+    f.close()
+    df = pd.read_csv(endpath, header=None, sep='\t')
+    # 12月： 31104000
+    max_Timestamp = 1427784002
+    min_Timestamp = 824835410
+    middle_Timestamp = 1396680002
+    df_train = df[(df[3] >= min_Timestamp) & (df[3] < middle_Timestamp)]
+    df_train.to_csv('data_MovieLen/train.tsv', sep='\t', header=None, index=False)
+    df_other = df[(df[3] >= middle_Timestamp) & (df[3] <= max_Timestamp)]
+    df_validation = df_other.sample(frac=0.5)
+    df_tmp = df_other.append(df_validation)
+    df_test = df_tmp.drop_duplicates(keep=False)
+    df_validation.to_csv('data_MovieLen/validation.tsv', sep='\t', header=None, index=False)
+    df_test.to_csv('data_MovieLen/test.tsv', sep='\t', header=None, index=False)
+
+
+# check the number of users in validation and test with the sum of user numbers
+def check(validation, test):
+    df_val = pd.read_csv(validation, header=None, sep='\t')
+    df_test = pd.read_csv(test, header=None, sep='\t')
+    print(len(df_val[0].drop_duplicates()))
+    print(len(df_test[0].drop_duplicates()))
+
+
 if __name__ == '__main__':
 
-    # rebuildNetData(filepath1,'one')
-    # filepath = 'data_Netflix/data_three_stan.csv'
-    # rebuildNetData(filepath)
-    # filepath1 = 'data_Netflix/data_one.csv'
-    # filepath2 = 'data_Netflix/data_two.csv'
-    # filepath3 = 'data_Netflix/data_three.csv'
-    # filepath4 = 'data_Netflix/data_four.csv'
-    # append(filepath1, filepath2)
-    # append(filepath3, filepath4)
-    # filepath = 'data_Netflix/data_one_two.csv'
-    # filepath2 = 'data_Netflix/data_three_four.csv'
-    # changetime(filepath)
-    # splitTimeData(filepath)
-    # append()
+    # n = 10702
+    # userpath = 'data_MovieLen/test_users.tsv'
+    # exists = os.path.exists(userpath)
+    # if not exists:
+    #     gettest_users(userpath, n)
+    #
+    # datapath = 'data_MovieLen/ratings.csv'
+    # objectpath = 'data_MovieLen/all_1.tsv'
+    # exists = os.path.exists(objectpath)
+    # if not exists:
+    #     analyze(datapath, objectpath)
+    #
+    # resultpath = 'data_MovieLen/result.tsv'
+    # exists = os.path.exists(resultpath)
+    # if not exists:
+    #     updateUserId_movie(objectpath, resultpath)
+    #
+    # finalpath = 'data_MovieLen/final.tsv'
+    # exists = os.path.exists(finalpath)
+    # if not exists:
+    #     updateItemId_movie(resultpath, finalpath)
+    #
+    # # 划分train、validation、test
+    # endpath = 'data_MovieLen/end.tsv'
+    # exists = os.path.exists(endpath)
+    # if not exists:
+    #     splitTimeData_movie(finalpath, endpath)
 
-    train = 'data_Netflix/train.csv'
-    validation = 'data_Netflix/validation.csv'
-    test = 'data_Netflix/test.csv'
-    train_stan = 'data_Netflix/train_stan.csv'
-    validation_stan = 'data_Netflix/validation_stan.csv'
-    test_stan = 'data_Netflix/test_stan.csv'
-    trainmiddle = 'data_Netflix/trainmiddle.csv'
-    validationmiddle = 'data_Netflix/validationmiddle.csv'
-    testmiddle = 'data_Netflix/testmiddle.csv'
-    # # # update user id
-    updateUserId(train, validation, test, 'stan')
-    # # # reserve value > 500
-    clearData(train_stan, validation_stan, test_stan)
-    # # # update user id
-    updateUserId(trainmiddle, validationmiddle, testmiddle, 'final')
-    # # # update item id
-    trainfinal = 'data_Netflix/train_final.csv'
-    validationfinal = 'data_Netflix/validation_final.csv'
-    testfinal = 'data_Netflix/test_final.csv'
-    updateUserId(trainfinal, validationfinal, testfinal, 'learn')
-    # # # generator test_users.tsv file
-    gettest_users(23928)
+    validationpath = 'data_Netflix/validation.tsv'
+    testpath = 'data_Netflix/test.tsv'
+    check(validationpath, testpath)
 
-    # convert 100028384.0 to 100028384
-    f = open('data_Netflix/test_learn.csv', 'r')
-    f_new = open('data_Netflix/test.tsv', 'a')
-    while 1:
-        lines = f.readlines(10000)
-        if not lines:
-            break
-        for line in lines:
-            stamp = (line.strip('\n').split('\t')[3]).split('.')[0]
-            line_new = line.strip('\n').split('\t')[0] + '\t' + line.strip('\n').split('\t')[1] + '\t' + \
-                       line.strip('\n').split('\t')[2] + '\t' + stamp + '\n'
-            f_new.write(line_new)
+# if __name__ == '__main__':
+
+# rebuildNetData(filepath1,'one')
+# filepath = 'data_Netflix/data_three_stan.csv'
+# rebuildNetData(filepath)
+# filepath1 = 'data_Netflix/data_one.csv'
+# filepath2 = 'data_Netflix/data_two.csv'
+# filepath3 = 'data_Netflix/data_three.csv'
+# filepath4 = 'data_Netflix/data_four.csv'
+# append(filepath1, filepath2)
+# append(filepath3, filepath4)
+# filepath = 'data_Netflix/data_one_two.csv'
+# filepath2 = 'data_Netflix/data_three_four.csv'
+# changetime(filepath)
+# splitTimeData(filepath)
+# append()
+
+# train = 'data_Netflix/train.csv'
+# validation = 'data_Netflix/validation.csv'
+# test = 'data_Netflix/test.csv'
+# train_stan = 'data_Netflix/train_stan.csv'
+# validation_stan = 'data_Netflix/validation_stan.csv'
+# test_stan = 'data_Netflix/test_stan.csv'
+# trainmiddle = 'data_Netflix/trainmiddle.csv'
+# validationmiddle = 'data_Netflix/validationmiddle.csv'
+# testmiddle = 'data_Netflix/testmiddle.csv'
+# # # # update user id
+# updateUserId(train, validation, test, 'stan')
+# # # # reserve value > 500
+# clearData(train_stan, validation_stan, test_stan)
+# # # # update user id
+# updateUserId(trainmiddle, validationmiddle, testmiddle, 'final')
+# # # # update item id
+# trainfinal = 'data_Netflix/train_final.csv'
+# validationfinal = 'data_Netflix/validation_final.csv'
+# testfinal = 'data_Netflix/test_final.csv'
+# updateUserId(trainfinal, validationfinal, testfinal, 'learn')
+# # # # generator test_users.tsv file
+# gettest_users(23928)
+#
+# # convert 100028384.0 to 100028384
+# f = open('data_Netflix/test_learn.csv', 'r')
+# f_new = open('data_Netflix/test.tsv', 'a')
+# while 1:
+#     lines = f.readlines(10000)
+#     if not lines:
+#         break
+#     for line in lines:
+#         stamp = (line.strip('\n').split('\t')[3]).split('.')[0]
+#         line_new = line.strip('\n').split('\t')[0] + '\t' + line.strip('\n').split('\t')[1] + '\t' + \
+#                    line.strip('\n').split('\t')[2] + '\t' + stamp + '\n'
+#         f_new.write(line_new)
 
 
-    # df = pd.read_csv('data_Netflix/test_learn.csv', header=None, sep='\t')
-    # for i in range(len(df)):
-    #     df.iloc[i, 3] = str(int(df.iloc[i, 3]))
-    # df.to_csv('data_Netflix/test_learn_new.csv', header=None, sep='\t', index=False)
+# df = pd.read_csv('data_Netflix/test_learn.csv', header=None, sep='\t')
+# for i in range(len(df)):
+#     df.iloc[i, 3] = str(int(df.iloc[i, 3]))
+# df.to_csv('data_Netflix/test_learn_new.csv', header=None, sep='\t', index=False)
 
 # 1、保留打分数超过k个的用户
 # if __name__ == '__main__':
