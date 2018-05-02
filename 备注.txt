@@ -116,8 +116,11 @@ min_Timestamp 824835410
 usernumber: 10702
 itemnumber: 26231
 
-
 movielen的validation和test中user的数量为1900左右
 netflix的validation和test中user的数量为23420左右
 
 main_running_standard.py 中 0.02-0.02-0.02的参数还没有训练
+
+2018.5.1
+目前来说MovieLen数据集在0.02-0.1-0.02和0.02-0.02-0.02上的结果还可以，但是AUC还未收敛，
+明天计算继续迭代后的precision值，希望能够超过dpf！

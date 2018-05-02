@@ -71,7 +71,8 @@ def ranking_sparse(rootPath, trainPath, validationPath, testPath, timestep, item
     # 获取train数据和validation中出现的item
     df_train = pd.read_csv(trainPath, header=None, sep='\t')
     df_validation = pd.read_csv(validationPath, header=None, sep='\t')
-    all_itemset = set([n for n in range(1, m)])
+    # 之前为什么要才从1开始？
+    all_itemset = set([n for n in range(0, m)])
 
     for userId in userSet:
         # 剔除掉train和validation中出现过的item

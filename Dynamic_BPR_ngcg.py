@@ -3,9 +3,9 @@
 import numpy as np
 import pandas as pd
 import random
-import time
-import metric
 from scipy.stats import logistic
+import heapq
+import math
 
 
 class DBPR:
@@ -33,41 +33,45 @@ class DBPR:
         self.alpha_Reg = alpha_Reg
         self.gama = gama
 
-    def prediction(self, timestamp, validationPath, userMat, itemMat, itemSet):
-        pred = list()
-        true = list()
+    def NGCG(self, timestamp, trainPath, validationPath, userMat, itemMat):
         df_validation = pd.read_csv(validationPath, sep='\t', header=None)
-
         max_Timestamp = pd.Series.max(df_validation[3])
         min_Timestamp = pd.Series.min(df_validation[3])
         current_Timestamp = min_Timestamp + timestamp
         level_down_current = min_Timestamp
-        level_up_current = current_Timestamp if current_Timestamp < max_Timestamp else max_Timestamp
-
+        level_up_current = min(current_Timestamp,max_Timestamp)
         df_interval_current = df_validation[
             (df_validation[3] >= level_down_current) & (df_validation[3] < level_up_current)]
-
-        for u in range(len(df_interval_current[0])):
-            userId = df_interval_current.iat[u, 0]
-            itemId = df_interval_current.iat[u, 1]
-            df_tmp = df_interval_current[df_interval_current[0] == userId]
-            item_tmp = set(df_tmp[1])
+        userSet = list(df_interval_current[0].drop_duplicates())
+        df_train = pd.read_csv(trainPath, header=None, sep='\t')
+        all_itemset = set([n for n in range(0, self.itemNum)])
+        NGCG = 0
+        for userId in userSet:
+            # 剔除掉train中出现过的item
+            df_train_itemset = set(df_train[df_train[0] == userId][1])
+            remain_itemset = all_itemset - df_train_itemset
+            df_interval_currentItem = set(df_interval_current[df_interval_current[0] == userId][1])
             Pu = userMat[userId]
-            Qi = itemMat[itemId]
-            true.append(1)
-            Y = np.dot(Pu, Qi)
-            pred.append(Y)
-            negative_item_set = itemSet - item_tmp
-            nega_item_id = random.choice(list(negative_item_set))
-            Qk = itemMat[nega_item_id]
-            true.append(0)
-            Y = np.dot(Pu, Qk)
-            pred.append(Y)
-            # print(u)
-
-        Y_True = np.array(true)
-        Y_Pred = np.array(pred)
-        return Y_True, Y_Pred
+            result = dict()
+            for i in remain_itemset:
+                Qi = itemMat[i]
+                pro = np.dot(Pu, Qi)
+                result[i] = pro
+            # 取分数最高的前10个
+            top_k_values = heapq.nlargest(10, result.values())
+            top_k_keys = list()
+            for values in top_k_values:
+                for keys in result.keys():
+                    if result[keys] == values:
+                        top_k_keys.append(keys)
+            NGCG_rate = 0
+            for key in top_k_keys:
+                if key in df_interval_currentItem:
+                    index = top_k_keys.index(key)
+                    NGCG_rate += 1.0 / math.log(index + 2)
+            NGCG += NGCG_rate
+        NGCG = NGCG / len(userSet)
+        return NGCG
 
     def Time_BPR(self):
         rootPath = self.rootPath
@@ -227,22 +231,15 @@ class DBPR:
                         else:
                             userMat[t][user_id] = userMat[last_t][user_id]
 
-            # Y_True, Y_Pred = self.prediction(validationPath, userMat[time_Step], itemMat[time_Step], itemSet)
-            # auc = evolution.AUC(Y_True, Y_Pred)
-            # print('AUC:', auc)
             if step % 2 == 0:
                 userMat_name = 'userMat' + str(step) + '.txt'
                 itemMat_name = 'itemMat' + str(step) + '.txt'
                 np.savetxt(rootPath + 'evolution' + str(self.interval) + '/' + userMat_name, userMat[time_Step])
                 np.savetxt(rootPath + 'evolution' + str(self.interval) + '/' + itemMat_name, itemMat[time_Step])
-                #
-                f = open(rootPath + 'evolution' + str(self.interval) + '/auc.txt', 'a')
-                Y_True, Y_Pred = self.prediction(timestamp, validationPath, userMat[time_Step], itemMat[time_Step],
-                                                 itemSet)
-                auc = metric.AUC(Y_True, Y_Pred)
-                auc_write = str(step) + ' step,auc=' + str(auc) + '\n'
-                # print(auc_write)
-                f.write(auc_write)
+                f = open(rootPath + 'evolution' + str(self.interval) + '/ngcg.txt', 'a')
+                ngcg = self.NGCG(timestamp, trainPath, validationPath, userMat[time_Step], itemMat[time_Step])
+                ngcg_write = str(step) + ' step,ngcg=' + str(ngcg) + '\n'
+                f.write(ngcg_write)
                 f.close()
 
         return userMat[time_Step], itemMat[time_Step]

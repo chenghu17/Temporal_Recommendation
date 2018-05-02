@@ -36,10 +36,10 @@ class DBPR():
         true = list()
         df_validation = pd.read_csv(validationPath, sep='\t', header=None)
         for u in range(len(df_validation[0])):
-            df_tmp = df_validation[df_validation[0] == u]
-            item_tmp = set(df_tmp[1])
             userId = df_validation.iat[u, 0]
             itemId = df_validation.iat[u, 1]
+            df_tmp = df_validation[df_validation[0] == userId]
+            item_tmp = set(df_tmp[1])
             Pu = userMat[userId]
             Qi = itemMat[itemId]
             true.append(1)

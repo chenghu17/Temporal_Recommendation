@@ -63,7 +63,6 @@ class DBPR:
             true.append(0)
             Y = np.dot(Pu, Qk)
             pred.append(Y)
-            # print(u)
 
         Y_True = np.array(true)
         Y_Pred = np.array(pred)

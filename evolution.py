@@ -11,8 +11,8 @@ if __name__ == '__main__':
     validationPath = rootPath + 'validation.tsv'
     testPath = rootPath + 'test.tsv'
     alpha = 0.02
-    alpha_Reg = 0.1
-    gama = 0.1
+    alpha_Reg = 0.02
+    gama = 0.02
     resultPath = 'alpha_' + str(alpha) + '_alphaReg_' + str(alpha_Reg) + '_gama_' + str(gama)+'/'
     # resultPath = 'dpf/'
     rootPath = rootPath + resultPath
@@ -35,8 +35,8 @@ if __name__ == '__main__':
     n = 10702
     m = 26231
     # 训练出来的user和item特征向量，内乘即为user对item的偏好，对结果进行排序，得到ranking.tsv,再计算以下评价标准
-    itemMat = 'itemMat10'
-    userMat = 'userMat10'
+    itemMat = 'itemMat18'
+    userMat = 'userMat18'
     # 判断之前是否已经生成ranking(Max).tsv
     exists = os.path.exists(rootPath + 'evolution' + str(timestep) + '/ranking'+str(Max)+'.tsv')
     if not exists:
