@@ -5,13 +5,20 @@ import time
 if __name__ == '__main__':
     # trainPath = 'data_FM/train.tsv'
 
-    # validationPath = 'data_LastFM/ranking100.tsv'
+    validationPath = 'data_LastFM/validation.tsv'
+    trainPath = 'data_LastFM/train.tsv'
+    testPath = 'data_LastFM/test.tsv'
     # validationPath = 'data_Epinions/validation.csv'
     # validationPath = 'data_FineFoods/validation.csv'
+    # df_train = pd.read_csv(trainPath, sep='\t', header=None)
     # df_validation = pd.read_csv(validationPath, sep='\t', header=None)
+    df_test = pd.read_csv(testPath, sep='\t', header=None)
     # print(df_validation.head(100))
     # userSet = list(df_validation[0].drop_duplicates())
     # print(len(userSet))
+    maxtime = max(df_test[3])
+    mintime = min(df_test[3])
+
 
     # print(userSet)
     # a = set([1,2,2,3,4,5])
@@ -24,8 +31,8 @@ if __name__ == '__main__':
     # userMat_stand = np.loadtxt('evolution_standard/userMat30.txt')
 
 
-    st_max = time.localtime(1427784002)
-    st_min = time.localtime(824835410)
+    st_max = time.localtime(maxtime)
+    st_min = time.localtime(mintime)
     print(time.strftime('%Y-%m-%d %H:%M:%S', st_max))
     print(time.strftime('%Y-%m-%d %H:%M:%S', st_min))
 
