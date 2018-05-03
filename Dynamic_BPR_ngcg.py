@@ -34,25 +34,7 @@ class DBPR:
         self.gama = gama
 
     def NGCG(self, timestamp, trainPath, validationPath, userMat, itemMat):
-        df_validation = pd.read_csv(validationPath, sep='\t', header=None)
-        max_Timestamp = pd.Series.max(df_validation[3])
-        min_Timestamp = pd.Series.min(df_validation[3])
-        current_Timestamp = min_Timestamp + timestamp
-        level_down_current = min_Timestamp
-        level_up_current = min(current_Timestamp,max_Timestamp)
-        df_interval_current = df_validation[
-            (df_validation[3] >= level_down_current) & (df_validation[3] < level_up_current)]
-        userSet = list(df_interval_current[0].drop_duplicates())
-        df_train = pd.read_csv(trainPath, header=None, sep='\t')
-        all_itemset = set([n for n in range(0, self.itemNum)])
-        NGCG = 0
-        for userId in userSet:
-            # 剔除掉train中出现过的item
-            df_train_itemset = set(df_train[df_train[0] == userId][1])
-            remain_itemset = all_itemset - df_train_itemset
-            df_interval_currentItem = set(df_interval_current[df_interval_current[0] == userId][1])
-            Pu = userMat[userId]
-            result = dict()
+        
             for i in remain_itemset:
                 Qi = itemMat[i]
                 pro = np.dot(Pu, Qi)

@@ -18,7 +18,7 @@ if __name__ == '__main__':
     rootPath = rootPath + resultPath
     Max = 100       # 给每个user预测Max个item，用于计算后面的评价标准
     K = 10          # precision@K，K可以取10，50，100，不要大于Max
-    timestep = 9   # 每个时间间隔跨度，即main_running.py中的interval，取值为3，6，9
+    timestep = 0   # 每个时间间隔跨度，即main_running.py中的interval，取值为3，6，9
     # for lastfm
     # n = 1000
     # m = 1000
@@ -35,8 +35,8 @@ if __name__ == '__main__':
     n = 10702
     m = 26231
     # 训练出来的user和item特征向量，内乘即为user对item的偏好，对结果进行排序，得到ranking.tsv,再计算以下评价标准
-    itemMat = 'itemMat18'
-    userMat = 'userMat18'
+    itemMat = 'itemMat6'
+    userMat = 'userMat6'
     # 判断之前是否已经生成ranking(Max).tsv
     exists = os.path.exists(rootPath + 'evolution' + str(timestep) + '/ranking'+str(Max)+'.tsv')
     if not exists:
