@@ -182,10 +182,10 @@ def MAR(rootPath, testPath, timestep, K, Max):
     for userId in userSet:
         df_current_user = df_interval_current[df_interval_current[0] == userId]
         df_interval_currentItem = set(df_current_user[1])
-        # 是否需要判断当前用户打分的item类别数与K的大小？？？ 不需要
+        # due to be consistent with dPF, do not judge it
         # k = K if K < itemNum else itemNum
         df_ranking_user = df_ranking[df_ranking[0] == userId].head(K)
-        # 注意要用list，因为set会自动排序，这样就打乱了推荐的顺序
+        # mush be list
         top_k_recommend = list(df_ranking_user[1])
         # num = 0
         MAR_rate = 0
