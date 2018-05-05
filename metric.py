@@ -198,6 +198,7 @@ def MAR(rootPath, testPath, timestep, K, Max):
     return MAR
 
 
+# in fact, we should metric all test items
 def NGCG(rootPath, testPath, timestep, K, Max):
     df_interval_current = currentDF(testPath, timestep)
     df_ranking = pd.read_csv(rootPath + 'evolution' + str(timestep) + '/ranking' + str(Max) + '.tsv', header=None,
