@@ -59,11 +59,8 @@ def ranking(rootPath, testPath, timestep, itemMat, userMat, Max):
 
 
 def ranking_sparse(rootPath, trainPath, validationPath, testPath, timestep, itemMat, userMat, m, Max):
-    # 先使用validation来做测试
     itemMat = np.loadtxt(rootPath + 'evolution' + str(timestep) + '/' + itemMat + '.txt')
     userMat = np.loadtxt(rootPath + 'evolution' + str(timestep) + '/' + userMat + '.txt')
-
-    # df_interval_current = currentDF(validationPath, timestep)
     df_interval_current = currentDF(testPath, timestep)
     userSet = list(df_interval_current[0].drop_duplicates())
     # 确定ranking.tsv文件的位置
@@ -75,7 +72,7 @@ def ranking_sparse(rootPath, trainPath, validationPath, testPath, timestep, item
     all_itemset = set([n for n in range(0, m)])
 
     for userId in userSet:
-        # 剔除掉train和validation中出现过的item
+        # remove the items which are appeared in train and validation
         df_train_itemset = set(df_train[df_train[0] == userId][1])
         df_validation_itemset = set(df_validation[df_validation[0] == userId][1])
         remain_itemset = all_itemset - df_train_itemset - df_validation_itemset
@@ -86,14 +83,14 @@ def ranking_sparse(rootPath, trainPath, validationPath, testPath, timestep, item
             Qi = itemMat[i]
             pro = np.dot(Pu, Qi)
             result[i] = pro
-        # 取分数最高的前k个
+        # get the top k
         top_k_values = heapq.nlargest(Max, result.values())
         top_k_keys = list()
         for values in top_k_values:
             for keys in result.keys():
                 if result[keys] == values:
                     top_k_keys.append(keys)
-        # 保存至ranking.tsv文件中，方便以后直接对比，而不需要再进行矩阵运算
+        # keep to ranking.tsv
         for i in range(Max):
             result = str(userId) + '\t' + str(top_k_keys[i]) + '\t' + str(top_k_values[i]) + '\t' + str(0) + '\n'
             ranking_path.write(result)
@@ -109,10 +106,7 @@ def precision(rootPath, testPath, timestep, K, Max):
     for userId in userSet:
         df_current_user = df_interval_current[df_interval_current[0] == userId]
         df_interval_currentItem = set(df_current_user[1])
-        # itemNum ????
-        # 是记录条数，还是item的种类数字？？
         itemNum = len(df_interval_currentItem)
-        # 需要判断当前用户打分项的类别数和所设置的K值大小，取较小的数
         # k = K if K < itemNum else itemNum
         k = K
         df_ranking_user = df_ranking[df_ranking[0] == userId].head(k)
@@ -153,10 +147,8 @@ def MRR(rootPath, testPath, timestep, K, Max):
     for userId in userSet:
         df_current_user = df_interval_current[df_interval_current[0] == userId]
         df_interval_currentItem = set(df_current_user[1])
-        # 是否需要判断当前用户打分的item类别数与K的大小？？？ 不需要
         # k = K if K < itemNum else itemNum
         df_ranking_user = df_ranking[df_ranking[0] == userId].head(K)
-        # 注意要用list，因为set会自动排序，这样就打乱了推荐的顺序
         top_k_recommend = list(df_ranking_user[1])
         # num = 0
         MRR_rate = 0
@@ -208,10 +200,8 @@ def NGCG(rootPath, testPath, timestep, K, Max):
     for userId in userSet:
         df_current_user = df_interval_current[df_interval_current[0] == userId]
         df_interval_currentItem = set(df_current_user[1])
-        # 是否需要判断当前用户打分的item类别数与K的大小？？？ 不需要
         # k = K if K < itemNum else itemNum
         df_ranking_user = df_ranking[df_ranking[0] == userId].head(K)
-        # 注意要用list，因为set会自动排序，这样就打乱了推荐的顺序
         top_k_recommend = list(df_ranking_user[1])
         NGCG_rate = 0
         for key in top_k_recommend:
