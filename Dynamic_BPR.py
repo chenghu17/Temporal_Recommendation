@@ -47,10 +47,10 @@ class DBPR:
             (df_validation[3] >= level_down_current) & (df_validation[3] < level_up_current)]
 
         for u in range(len(df_interval_current[0])):
-            df_tmp = df_interval_current[df_interval_current[0] == u]
+            userId = df_interval_current.iat[u, 0]
+            itemId = df_interval_current.iat[u, 1]
+            df_tmp = df_interval_current[df_interval_current[0] == userId]
             item_tmp = set(df_tmp[1])
-            userId = df_validation.iat[u, 0]
-            itemId = df_validation.iat[u, 1]
             Pu = userMat[userId]
             Qi = itemMat[itemId]
             true.append(1)
