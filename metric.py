@@ -90,7 +90,7 @@ def ranking_sparse(rootPath, trainPath, validationPath, testPath, timestep, item
             for keys in result.keys():
                 if result[keys] == values:
                     top_k_keys.append(keys)
-        # keep to ranking.tsv
+        # keep to ranking100.tsv
         for i in range(Max):
             result = str(userId) + '\t' + str(top_k_keys[i]) + '\t' + str(top_k_values[i]) + '\t' + str(0) + '\n'
             ranking_path.write(result)
@@ -102,17 +102,19 @@ def precision(rootPath, testPath, timestep, K, Max):
     df_ranking = pd.read_csv(rootPath + 'evolution' + str(timestep) + '/ranking' + str(Max) + '.tsv', header=None,
                              sep='\t')
     userSet = list(df_interval_current[0].drop_duplicates())
+    print('userset', len(userSet))
     precisionRate = 0
     for userId in userSet:
         df_current_user = df_interval_current[df_interval_current[0] == userId]
         df_interval_currentItem = set(df_current_user[1])
         itemNum = len(df_interval_currentItem)
-        # k = K if K < itemNum else itemNum
-        k = K
+        k = min(K, itemNum)
+        # k = K
         df_ranking_user = df_ranking[df_ranking[0] == userId].head(k)
         top_k_recommend = set(df_ranking_user[1])
         # 取交集，计算
         TP = len(df_interval_currentItem & top_k_recommend)
+        print('user:', userId, ':', TP, '\n')
         precisionRate += float(TP) / float(k)
     precisionRate = precisionRate / len(userSet)
     return precisionRate
@@ -191,23 +193,24 @@ def MAR(rootPath, testPath, timestep, K, Max):
 
 
 # in fact, we should metric all test items
-def NGCG(rootPath, testPath, timestep, K, Max):
+def NDCG(rootPath, testPath, timestep, K, Max):
     df_interval_current = currentDF(testPath, timestep)
     df_ranking = pd.read_csv(rootPath + 'evolution' + str(timestep) + '/ranking' + str(Max) + '.tsv', header=None,
                              sep='\t')
     userSet = list(df_interval_current[0].drop_duplicates())
-    NGCG = 0
+    NDCG = 0
     for userId in userSet:
         df_current_user = df_interval_current[df_interval_current[0] == userId]
         df_interval_currentItem = set(df_current_user[1])
-        # k = K if K < itemNum else itemNum
-        df_ranking_user = df_ranking[df_ranking[0] == userId].head(K)
+        # itemNum = len(df_interval_currentItem)
+        # k = min(K, itemNum)
+        df_ranking_user = df_ranking[df_ranking[0] == userId].head(k)
         top_k_recommend = list(df_ranking_user[1])
         NGCG_rate = 0
         for key in top_k_recommend:
             if key in df_interval_currentItem:
                 index = top_k_recommend.index(key)
                 NGCG_rate += 1.0 / math.log(index + 2)
-        NGCG += NGCG_rate
-    NGCG = NGCG / len(userSet)
-    return NGCG
+        NDCG += NGCG_rate
+    NDCG = NDCG / len(userSet)
+    return NDCG

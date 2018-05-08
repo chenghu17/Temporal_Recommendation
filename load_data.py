@@ -452,7 +452,7 @@ def check(validation, test):
 
 
 if __name__ == '__main__':
-
+    gettest_users('data_Epinions/test_users.tsv',1461)
     # n = 10702
     # userpath = 'data_MovieLen/test_users.tsv'
     # exists = os.path.exists(userpath)
@@ -481,9 +481,9 @@ if __name__ == '__main__':
     # if not exists:
     #     splitTimeData_movie(finalpath, endpath)
 
-    validationpath = 'data_Netflix/validation.tsv'
-    testpath = 'data_Netflix/test.tsv'
-    check(validationpath, testpath)
+    # validationpath = 'data_Netflix/validation.tsv'
+    # testpath = 'data_Netflix/test.tsv'
+    # check(validationpath, testpath)
 
 # if __name__ == '__main__':
 
