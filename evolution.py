@@ -11,7 +11,7 @@ if __name__ == '__main__':
     validationPath = rootPath + 'validation.tsv'
     testPath = rootPath + 'test.tsv'
     alpha = 0.02
-    alpha_Reg = 0.1
+    alpha_Reg = 0.02
     gama = 0.02
     resultPath = 'alpha_' + str(alpha) + '_alphaReg_' + str(alpha_Reg) + '_gama_' + str(gama)+'/'
     # resultPath = 'dpf/'
@@ -40,17 +40,18 @@ if __name__ == '__main__':
     # 判断之前是否已经生成ranking(Max).tsv
     exists = os.path.exists(rootPath + 'evolution' + str(timestep) + '/ranking'+str(Max)+'.tsv')
     if not exists:
-        metric.ranking(rootPath, testPath, timestep, itemMat, userMat, Max)
-        # metric.ranking_sparse(rootPath, trainPath, validationPath, testPath, timestep, itemMat, userMat, m, Max)
+        # metric.ranking(rootPath, testPath, timestep, itemMat, userMat, Max)
+        metric.ranking_sparse(rootPath, trainPath, validationPath, testPath, timestep, itemMat, userMat, m, Max)
     Precision = metric.precision(rootPath, testPath, timestep, K, Max)
     Recall = metric.reCall(rootPath, testPath, timestep, K, Max)
     MRR = metric.MRR(rootPath, testPath, timestep, K, Max)
     MAR = metric.MAR(rootPath, testPath, timestep, K, Max)
-    NDCG = metric.NDCG(rootPath, testPath, timestep, K, Max)
+    # NDCG = metric.NDCG(rootPath, testPath, timestep, K, Max)
+    NDCG = metric.NDCG_Full(rootPath, testPath, timestep, K, Max)
     file = open(rootPath + 'evolution' + str(timestep) + '/metric.txt', 'a')
     file.write('Precision@' + str(K) + ': ' + str(Precision) + '\n')
     file.write('Recall@' + str(K) + ': ' + str(Recall) + '\n')
-    file.write('MRR@' + str(K) + ': ' + str(MRR) + '\n')
-    file.write('MAR@' + str(K) + ': ' + str(MAR) + '\n')
-    file.write('NDCG@' + str(K) + ': ' + str(NDCG) + '\n')
+    file.write('MRR: ' + str(MRR) + '\n')
+    file.write('MAR: ' + str(MAR) + '\n')
+    file.write('NDCG: ' + str(NDCG) + '\n')
     file.write('\n')
