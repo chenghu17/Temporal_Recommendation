@@ -1,5 +1,5 @@
 import load_data
-import Dynamic_BPR_strengthen
+import Dynamic_BPR_auc
 
 if __name__ == '__main__':
 
@@ -36,6 +36,6 @@ if __name__ == '__main__':
     m = 26231
 
     itemSet = load_data.itemSet(trainPath)
-    dBPR = Dynamic_BPR_strengthen.DBPR(rootPath, trainPath, validationPath, d, interval, n, m,
+    dBPR = Dynamic_BPR_auc.DBPR(rootPath, trainPath, validationPath, d, interval, n, m,
                                                 itemSet, step, alpha, alpha_Reg, gama)
     userMat, itemMat = dBPR.Time_BPR()
