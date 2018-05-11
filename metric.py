@@ -177,8 +177,8 @@ def MAR(rootPath, testPath, timestep, K, Max):
         df_interval_currentItem = set(df_current_user[1])
         # due to be consistent with dPF, do not judge it
         # k = K if K < itemNum else itemNum
-        # df_ranking_user = df_ranking[df_ranking[0] == userId].head(K)
-        df_ranking_user = df_ranking[df_ranking[0] == userId]
+        df_ranking_user = df_ranking[df_ranking[0] == userId].head(K)
+        # df_ranking_user = df_ranking[df_ranking[0] == userId]
         # mush be list
         top_k_recommend = list(df_ranking_user[1])
         # num = 0
@@ -192,7 +192,6 @@ def MAR(rootPath, testPath, timestep, K, Max):
     return MAR
 
 
-# def NDCG(rootPath, testPath, timestep, K, Max):
 def NDCG(rootPath, testPath, timestep, K, Max):
     df_interval_current = currentDF(testPath, timestep)
     df_ranking = pd.read_csv(rootPath + 'evolution' + str(timestep) + '/ranking' + str(Max) + '.tsv', header=None,
@@ -204,15 +203,15 @@ def NDCG(rootPath, testPath, timestep, K, Max):
         df_interval_currentItem = set(df_current_user[1])
         # itemNum = len(df_interval_currentItem)
         # k = min(K, itemNum)
-        # df_ranking_user = df_ranking[df_ranking[0] == userId].head(K)
-        df_ranking_user = df_ranking[df_ranking[0] == userId]
+        df_ranking_user = df_ranking[df_ranking[0] == userId].head(K)
+        # df_ranking_user = df_ranking[df_ranking[0] == userId]
         top_k_recommend = list(df_ranking_user[1])
-        NGCG_rate = 0
+        NDCG_rate = 0
         for key in top_k_recommend:
             if key in df_interval_currentItem:
                 index = top_k_recommend.index(key)
-                NGCG_rate += 1.0 / math.log(index + 2)
-        NDCG += NGCG_rate
+                NDCG_rate += 1.0 / math.log(index + 2)
+        NDCG += NDCG_rate
     NDCG = NDCG / len(userSet)
     return NDCG
 

@@ -2,8 +2,8 @@ import metric
 import os
 
 if __name__ == '__main__':
-    rootPath = 'data_LastFM/'
-    # rootPath = 'data_Epinions/'
+    # rootPath = 'data_LastFM/'
+    rootPath = 'data_Epinions/'
     # rootPath = 'data_FineFoods/'
     # rootPath = 'data_Netflix/'
     # rootPath = 'data_MovieLen/'
@@ -13,18 +13,18 @@ if __name__ == '__main__':
     alpha = 0.02
     alpha_Reg = 0.02
     gama = 0.02
-    resultPath = 'alpha_' + str(alpha) + '_alphaReg_' + str(alpha_Reg) + '_gama_' + str(gama)+'/'
-    # resultPath = 'dpf/'
+    # resultPath = 'alpha_' + str(alpha) + '_alphaReg_' + str(alpha_Reg) + '_gama_' + str(gama)+'/'
+    resultPath = 'dpf/'
     rootPath = rootPath + resultPath
-    Max = 100       # 给每个user预测Max个item，用于计算后面的评价标准
-    K = 10          # precision@K，K可以取10，50，100，不要大于Max
-    timestep = 9   # 每个时间间隔跨度，即main_running.py中的interval，取值为3，6，9
+    Max = 100  # 给每个user预测Max个item，用于计算后面的评价标准
+    K = 100  # precision@K，K可以取10，50，100，不要大于Max
+    timestep = 9  # 每个时间间隔跨度，即main_running.py中的interval，取值为3，6，9
     # for lastfm
-    n = 1000
-    m = 1000
+    # n = 1000
+    # m = 1000
     # for epinions
-    # n = 1461
-    # m = 17765
+    n = 22579
+    m = 740029
     # for finefoods
     # n = 1892
     # m = 19489
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     itemMat = 'itemMat4'
     userMat = 'userMat4'
     # 判断之前是否已经生成ranking(Max).tsv
-    exists = os.path.exists(rootPath + 'evolution' + str(timestep) + '/ranking'+str(Max)+'.tsv')
+    exists = os.path.exists(rootPath + 'evolution' + str(timestep) + '/ranking' + str(Max) + '.tsv')
     if not exists:
         # metric.ranking(rootPath, testPath, timestep, itemMat, userMat, Max)
         metric.ranking_sparse(rootPath, trainPath, validationPath, testPath, timestep, itemMat, userMat, m, Max)
@@ -46,12 +46,13 @@ if __name__ == '__main__':
     Recall = metric.reCall(rootPath, testPath, timestep, K, Max)
     MRR = metric.MRR(rootPath, testPath, timestep, K, Max)
     MAR = metric.MAR(rootPath, testPath, timestep, K, Max)
-    # NDCG = metric.NDCG(rootPath, testPath, timestep, K, Max)
-    NDCG = metric.NDCG_Full(rootPath, testPath, timestep, K, Max)
+    NDCG = metric.NDCG(rootPath, testPath, timestep, K, Max)
+    NDCG_Full = metric.NDCG_Full(rootPath, testPath, timestep, K, Max)
     file = open(rootPath + 'evolution' + str(timestep) + '/metric.txt', 'a')
     file.write('Precision@' + str(K) + ': ' + str(Precision) + '\n')
     file.write('Recall@' + str(K) + ': ' + str(Recall) + '\n')
-    file.write('MRR: ' + str(MRR) + '\n')
-    file.write('MAR: ' + str(MAR) + '\n')
-    file.write('NDCG: ' + str(NDCG) + '\n')
+    file.write('MRR@' + str(K) + ': ' + str(MRR) + '\n')
+    file.write('MAR@' + str(K) + ': ' + str(MAR) + '\n')
+    file.write('NDCG@' + str(K) + ': ' + str(NDCG) + '\n')
+    file.write('NDCG_Full@: ' + str(NDCG_Full) + '\n')
     file.write('\n')
