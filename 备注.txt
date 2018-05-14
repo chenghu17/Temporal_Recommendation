@@ -126,3 +126,61 @@ main_running_standard.py 中 0.02-0.02-0.02的参数还没有训练
 
 2018.5.4
 先写完论文，如果时间来得及再加一个timeSVD++
+
+2018.5.7
+对lastFM再次进行训练，求不去重的结果
+对dPF进行训练，求不去重的结果，比较precision@10和precision@100
+
+2018.5.8
+对LastFM和MovieLen进行不去重复性计算，可以简化只计算其precision@10和precision@100
+对dPF进行训练，求不去重的结果，比较precision@10和precision@100，其自己计算的结果比较高，但是用我们自己的precision来计算是很低的。
+思考：DBPR如何像BPR一样使用概率进行解释...
+思考：当前对user和item都做了dynamic embedding，但是对于音乐电影来说，item的动态性并不是那么强，所以是否可以试试static item embedding
+Dynamic_BPR 最初的版本
+Dynamic_BPR_auc.py 表示用auc作为衡量指标的
+Dynamic_BPR_ndcg.py 表示用ndcg作为衡量指标的
+Dynamic_BPR_static.py 表示user是dynamic representation，item为static
+Dynamic_BPR_standard.py 表示最基本的BPR，user和item都为static
+
+2018.5.9
+1、对data_LastFM使用Dynamic_BPR_static.py训练的结果计算其他指标，似乎比Dynamic_BPR_auc.py要好
+2、对netflix使用ndcg作为衡量指标训练得到的值计算其他指标，将dpf对netflix训练得到的ranking计算其他指标，比较DBPR是否会更好(结果还是不好,finish)
+3、对LastFM进行static分析 evolution3 evolution6 evilution9 0.02-0.1-0.02 (finish)
+4、求lastFM数据集的standard (running)
+5、求FineFoods数据集的standard和evolution9，参数都参照之前调参的结果(finish)
+6、对Netflix进行static分析 (finish)
+7、对FineFoods进行static分析 evolution3 0.02-0.1-0.1(finish)
+8、对MovieLen进行static分析 evolution9 0.02-0.02-0.02(finish)
+等待数据集结果...完善论文实验部分
+
+2018.5.10
+1、对LastFM、FineFoods、MovieLen使用static模式参考ndcg进行训练(running)
+2、试着对user保持static，item为dynamic，这样就做全来所有的user和item的dynamic的对比情况(finish)
+3、对LastFM、FineFoods、MovieLen使用dynamic模式参考ndcg进行训练(running)
+3、对Epinions数据集重新划分，然后重新计算dynamic和static (running)
+epinions:
+    max_Timestamp: 1060660800
+    min_Timestamp 979102800
+    usernumber: 22579
+    itemnumber: 740029
+等待staic和dynamic的数据结果，并进行对比，都是使用ndcg作为参考指标
+
+2018.5.13
+
+dynamic:
+data_FineFoods: alpha_0.02_alphaReg_0.1_gama_0.0002 evolution3 计算结果
+data_LastFM:    alpha_0.02_alphaReg_0.1_gama_0.0002 evolution9 计算结果
+                alpha_0.02_alphaReg_0.1_gama_0.02 evolution0 evolution9 计算结果
+data_MovieLen:  alpha_0.02_alphaReg_0.02_gama_0.0002 evolution9 计算结果
+
+static:
+data_FineFoods:alpha_0.02_alphaReg_0.1_gama_0.0002 evolution3 计算结果
+data_LastFM:   alpha_0.02_alphaReg_0.1_gama_0.0002 evolution9 计算结果
+data_MovieLen: alpha_0.02_alphaReg_0.02_gama_0.0002 evolution9 计算结果
+
+对于时间序列的train、validation、test数据集的划分，理论上来讲应该没有validation数据集，直接用train和test
+对于epinions数据集，item数目太大，导致最终的preciosn@10很小，可以取precison@100来计算。
+
+2018.5.14
+待做：对lastfm、movielens计算intervals为3、6的情况，记录并完善论文中size of the time intervals部分
+待做：
