@@ -35,7 +35,7 @@ def ranking(rootPath, testPath, timestep, itemMat, userMat, Max):
     userMat = np.loadtxt(rootPath + 'evolution' + str(timestep) + '/' + userMat + '.txt')
     df_interval_current = currentDF(testPath, timestep)
     userSet = list(df_interval_current[0].drop_duplicates())
-    # 确定ranking.tsv文件的位置
+    # determine ranking.tsv location
     ranking_path = open(rootPath + 'evolution' + str(timestep) + '/ranking' + str(Max) + '.tsv', 'a')
     for userId in userSet:
         Pu = userMat[userId]
@@ -44,14 +44,14 @@ def ranking(rootPath, testPath, timestep, itemMat, userMat, Max):
             Qi = itemMat[i]
             pro = np.dot(Pu, Qi)
             result[i] = pro
-        # 取分数最高的前k个
+        # get the top-k
         top_k_values = heapq.nlargest(Max, result.values())
         top_k_keys = list()
         for values in top_k_values:
             for keys in result.keys():
                 if result[keys] == values:
                     top_k_keys.append(keys)
-        # 保存至ranking.tsv文件中，方便以后直接对比，而不需要再进行矩阵运算
+        # keep the ranking.tsv for the next calculation
         for i in range(Max):
             result = str(userId) + '\t' + str(top_k_keys[i]) + '\t' + str(top_k_values[i]) + '\t' + str(0) + '\n'
             ranking_path.write(result)
@@ -63,20 +63,16 @@ def ranking_sparse(rootPath, trainPath, validationPath, testPath, timestep, item
     userMat = np.loadtxt(rootPath + 'evolution' + str(timestep) + '/' + userMat + '.txt')
     df_interval_current = currentDF(testPath, timestep)
     userSet = list(df_interval_current[0].drop_duplicates())
-    # 确定ranking.tsv文件的位置
     ranking_path = open(rootPath + 'evolution' + str(timestep) + '/ranking' + str(Max) + '.tsv', 'a')
-    # 获取train数据和validation中出现的item
+    # obtain items in training and validation
     df_train = pd.read_csv(trainPath, header=None, sep='\t')
     df_validation = pd.read_csv(validationPath, header=None, sep='\t')
-    # 之前为什么要才从1开始？
     all_itemset = set([n for n in range(0, m)])
-
     for userId in userSet:
         # remove the items which are appeared in train and validation
         df_train_itemset = set(df_train[df_train[0] == userId][1])
         df_validation_itemset = set(df_validation[df_validation[0] == userId][1])
         remain_itemset = all_itemset - df_train_itemset - df_validation_itemset
-
         Pu = userMat[userId]
         result = dict()
         for i in remain_itemset:
@@ -111,7 +107,7 @@ def precision(rootPath, testPath, timestep, K, Max):
         k = K
         df_ranking_user = df_ranking[df_ranking[0] == userId].head(k)
         top_k_recommend = set(df_ranking_user[1])
-        # 取交集，计算
+        # get the right set
         TP = len(df_interval_currentItem & top_k_recommend)
         # print('user:', userId, ':', TP, '\n')
         precisionRate += float(TP) / float(k)
@@ -131,7 +127,6 @@ def reCall(rootPath, testPath, timestep, K, Max):
         itemNum = len(df_interval_currentItem)
         df_ranking_user = df_ranking[df_ranking[0] == userId].head(K)
         top_k_recommend = set(df_ranking_user[1])
-        # 取交集
         TP = len(df_interval_currentItem & top_k_recommend)
         recallRate += float(TP) / float(itemNum)
     recallRate = float(recallRate) / len(userSet)

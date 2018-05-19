@@ -161,7 +161,7 @@ def append():
 
 
 # reserve value > 400
-def analyze(datapath, objectpath):
+def analyze_user(datapath, objectpath):
     # data_df = pd.read_csv(datapath)
     # # f = open(objectpath,'a')
     # user = list(data_df['userId'].drop_duplicates())
@@ -186,6 +186,22 @@ def analyze(datapath, objectpath):
     user = list(user_id_over20.keys())
     data_user = df[0].isin(user)
     data = df[data_user]
+    data.to_csv(objectpath, header=None, sep='\t', index=False)
+
+def analyze_item(datapath, objectpath):
+    df = pd.read_csv(datapath, sep='\t', header=None)
+    item_id = dict()
+    for i in range(len(df)):
+        itemId = df.iat[i, 1]
+        if itemId not in item_id.keys():
+            item_id[itemId] = 1
+        else:
+            item_id[itemId] += 1
+    item_id_over80 = {key: value for key, value in item_id.items() if value >= 100}
+    # print(len(user_id_over20.keys()))
+    item = list(item_id_over80.keys())
+    data_item = df[1].isin(item)
+    data = df[data_item]
     data.to_csv(objectpath, header=None, sep='\t', index=False)
 
 
@@ -282,7 +298,13 @@ if __name__ == '__main__':
     objectpath = 'data_Epinions/all_1.tsv'
     exists = os.path.exists(objectpath)
     if not exists:
-        analyze(datapath, objectpath)
+        analyze_user(datapath, objectpath)
+    #
+    datapath = 'data_Epinions/all_1.tsv'
+    objectpath = 'data_Epinions/all_2.tsv'
+    exists = os.path.exists(objectpath)
+    if not exists:
+        analyze_item(datapath, objectpath)
     #
     resultpath = 'data_Epinions/result.tsv'
     exists = os.path.exists(resultpath)
