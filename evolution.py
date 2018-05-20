@@ -14,20 +14,20 @@ if __name__ == '__main__':
     alpha_Reg = 0.02
     # gama = 0.02
     gama = 0.0002
-    # resultPath = 'alpha_' + str(alpha) + '_alphaReg_' + str(alpha_Reg) + '_gama_' + str(gama)+'/'
-    resultPath = 'dpf/'
+    resultPath = 'alpha_' + str(alpha) + '_alphaReg_' + str(alpha_Reg) + '_gama_' + str(gama)+'/'
+    # resultPath = 'dpf/'
     state = 'dynamic/'
     # state = 'static/'
     rootPath = rootPath + state + resultPath
     Max = 100
-    K = 100
-    timestep = 6  # interval: 3，6，9
+    K = 10
+    timestep = 3  # interval: 0，3，6，9
     # for lastfm
     # n = 1000
     # m = 1000
     # for epinions
-    n = 1461
-    m = 17765
+    n = 8201
+    m = 19004
     # for finefoods
     # n = 1892
     # m = 19489
@@ -38,8 +38,8 @@ if __name__ == '__main__':
     # n = 10702
     # m = 26231
     #
-    itemMat = 'itemMat18'
-    userMat = 'userMat18'
+    itemMat = 'itemMat22'
+    userMat = 'userMat22'
     # if exist ranking(Max).tsv
     exists = os.path.exists(rootPath + 'evolution' + str(timestep) + '/ranking' + str(Max) + '.tsv')
     if not exists:

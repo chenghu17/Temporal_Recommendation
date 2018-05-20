@@ -35,7 +35,7 @@ def ranking(rootPath, testPath, timestep, itemMat, userMat, Max):
     userMat = np.loadtxt(rootPath + 'evolution' + str(timestep) + '/' + userMat + '.txt')
     df_interval_current = currentDF(testPath, timestep)
     userSet = list(df_interval_current[0].drop_duplicates())
-    # determine ranking.tsv location
+    # determine ranking100.tsv location
     ranking_path = open(rootPath + 'evolution' + str(timestep) + '/ranking' + str(Max) + '.tsv', 'a')
     for userId in userSet:
         Pu = userMat[userId]
@@ -51,7 +51,7 @@ def ranking(rootPath, testPath, timestep, itemMat, userMat, Max):
             for keys in result.keys():
                 if result[keys] == values:
                     top_k_keys.append(keys)
-        # keep the ranking.tsv for the next calculation
+        # keep the ranking100.tsv for the next calculation
         for i in range(Max):
             result = str(userId) + '\t' + str(top_k_keys[i]) + '\t' + str(top_k_values[i]) + '\t' + str(0) + '\n'
             ranking_path.write(result)
