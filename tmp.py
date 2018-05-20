@@ -5,19 +5,27 @@ import time
 if __name__ == '__main__':
     # trainPath = 'data_FM/train.tsv'
 
-    validationPath = 'data_LastFM/validation.tsv'
-    trainPath = 'data_LastFM/train.tsv'
-    testPath = 'data_LastFM/test.tsv'
+    # validationPath = 'data_LastFM/validation.tsv'
+    # trainPath = 'data_LastFM/train.tsv'
+    # testPath = 'data_LastFM/test.tsv'
+    # i = 1
+    # result = 2
+    # while i<32:
+    #     result *= 2
+    #     i += 1
+    # print(result)
+
+
     # validationPath = 'data_Epinions/validation.csv'
     # validationPath = 'data_FineFoods/validation.csv'
     # df_train = pd.read_csv(trainPath, sep='\t', header=None)
     # df_validation = pd.read_csv(validationPath, sep='\t', header=None)
-    df_test = pd.read_csv(testPath, sep='\t', header=None)
+    # df_test = pd.read_csv(testPath, sep='\t', header=None)
     # print(df_validation.head(100))
     # userSet = list(df_validation[0].drop_duplicates())
     # print(len(userSet))
-    maxtime = max(df_test[3])
-    mintime = min(df_test[3])
+    # maxtime = max(df_test[3])
+    # mintime = min(df_test[3])
 
 
     # print(userSet)
@@ -30,9 +38,19 @@ if __name__ == '__main__':
     # itemMat_stand = np.loadtxt('evolution_standard/itemMat30.txt')
     # userMat_stand = np.loadtxt('evolution_standard/userMat30.txt')
 
+    # validationPath = 'data_FineFoods/validation.tsv'
+    # trainPath = 'data_FineFoods/train.tsv'
+    # df_train = pd.read_csv(trainPath, sep='\t', header=None)
+    # df_validation = pd.read_csv(validationPath, sep='\t', header=None)
+    #
+    # maxtime = max(df_validation[3])
+    # mintime = min(df_train[3])
 
-    st_max = time.localtime(maxtime)
-    st_min = time.localtime(mintime)
+    # st_max = time.localtime(maxtime)
+    # st_min = time.localtime(mintime)
+    st_max = time.localtime(1060488000)
+    st_min = time.localtime(979102800)
+
     print(time.strftime('%Y-%m-%d %H:%M:%S', st_max))
     print(time.strftime('%Y-%m-%d %H:%M:%S', st_min))
 
