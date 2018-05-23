@@ -3,34 +3,34 @@ import os
 
 if __name__ == '__main__':
     # rootPath = 'data_LastFM/'
-    rootPath = 'data_Epinions/'
-    # rootPath = 'data_FineFoods/'
+    # rootPath = 'data_Epinions/'
+    rootPath = 'data_FineFoods/'
     # rootPath = 'data_Netflix/'
     # rootPath = 'data_MovieLen/'
     trainPath = rootPath + 'train.tsv'
     validationPath = rootPath + 'validation.tsv'
     testPath = rootPath + 'test.tsv'
     alpha = 0.02
-    alpha_Reg = 0.02
-    # gama = 0.02
-    gama = 0.0002
+    alpha_Reg = 0.1
+    gama = 0.1
+    # gama = 0.0002
     resultPath = 'alpha_' + str(alpha) + '_alphaReg_' + str(alpha_Reg) + '_gama_' + str(gama)+'/'
     # resultPath = 'dpf/'
     state = 'dynamic/'
     # state = 'static/'
     rootPath = rootPath + state + resultPath
     Max = 100
-    K = 10
-    timestep = 3  # interval: 0，3，6，9
+    K = 50
+    timestep = 0  # interval: 0，3，6，9
     # for lastfm
     # n = 1000
     # m = 1000
     # for epinions
-    n = 8201
-    m = 19004
+    # n = 8201
+    # m = 19004
     # for finefoods
-    # n = 1892
-    # m = 19489
+    n = 1892
+    m = 19489
     # for netflix
     # n = 23928
     # m = 17771
@@ -38,8 +38,8 @@ if __name__ == '__main__':
     # n = 10702
     # m = 26231
     #
-    itemMat = 'itemMat22'
-    userMat = 'userMat22'
+    itemMat = 'itemMat82'
+    userMat = 'userMat82'
     # if exist ranking(Max).tsv
     exists = os.path.exists(rootPath + 'evolution' + str(timestep) + '/ranking' + str(Max) + '.tsv')
     if not exists:
