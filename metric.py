@@ -58,9 +58,13 @@ def ranking(rootPath, testPath, timestep, itemMat, userMat, Max):
     ranking_path.close()
 
 
-def ranking_sparse(rootPath, trainPath, validationPath, testPath, timestep, itemMat, userMat, m, Max):
+def ranking_sparse(rootPath, trainPath, validationPath, testPath, timestep, itemMat, userMat, global_userMat, m, Max,
+                   state):
     itemMat = np.loadtxt(rootPath + 'evolution' + str(timestep) + '/' + itemMat + '.txt')
     userMat = np.loadtxt(rootPath + 'evolution' + str(timestep) + '/' + userMat + '.txt')
+    # global
+    if state == 'global/':
+        global_userMat = np.loadtxt(rootPath + 'evolution' + str(timestep) + '/' + global_userMat + '.txt')
     df_interval_current = currentDF(testPath, timestep)
     userSet = list(df_interval_current[0].drop_duplicates())
     ranking_path = open(rootPath + 'evolution' + str(timestep) + '/ranking' + str(Max) + '.tsv', 'a')
@@ -73,7 +77,10 @@ def ranking_sparse(rootPath, trainPath, validationPath, testPath, timestep, item
         df_train_itemset = set(df_train[df_train[0] == userId][1])
         df_validation_itemset = set(df_validation[df_validation[0] == userId][1])
         remain_itemset = all_itemset - df_train_itemset - df_validation_itemset
-        Pu = userMat[userId]
+        if state == 'global/':
+            Pu = userMat[userId] + global_userMat[userId]
+        else:
+            Pu = userMat[userId]
         result = dict()
         for i in remain_itemset:
             Qi = itemMat[i]
@@ -224,7 +231,7 @@ def NDCG_Full(rootPath, testPath, timestep, K, Max):
         df_interval_currentItem = set(df_current_user[1])
         df_ranking_user = df_ranking[df_ranking[0] == userId]
         top_k_recommend = list(df_ranking_user[1])
-        Su = 1 # user number
+        Su = 1  # user number
         for key in df_interval_currentItem:
             Su += 1
             IDCG += 1.0 / math.log(Su)
