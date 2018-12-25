@@ -1,6 +1,6 @@
 ## reference
 
-#### 1、Collaborative Filtering with Temporal Dynamics(2009)
+#### 1、Collaborative Filtering with Temporal Dynamics (2009)
 
 #### 2、Dynamic Poisson Factorization (2015)
 
